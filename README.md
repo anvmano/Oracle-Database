@@ -10,13 +10,8 @@ Aqui você encontra arquivos/tutoriais sobre banco de dados Oracle.
 ## Projetos:
 Veja os tutoriais publicados:
 
-* **
-* **
-* **
-* **
-* **
-* **
-* **
+* **Uma nova instalação do Oracle Linux:** https://github.com/anvmano/Oracle-Database/blob/main/Instala%C3%A7%C3%A3o%20oracle%20linux
+
 
 ---
 
