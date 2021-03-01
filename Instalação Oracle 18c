@@ -1,0 +1,248 @@
+VM atualizada
+rede configurada
+firewall Configurado
+pre-install efetuado
+    - caso nao tenha efetuado pre-install ($root)
+        terminal
+            yum -y install oracle-database-pre-install-18c
+    - caso pre-install falhe, realizar as configurações
+        # alteração de valores em sysctl.conf
+            vi /etc/sysctl.conf ou /etc/sysctl.d/98-oracle.conf
+                fs.file-max = 6815744
+                kernel.sem = 250 32000 100 128
+                kernel.shmmni = 4096
+                kernel.shmall = 1073741824
+                kernel.shmmax = 4398046511104
+                kernel.panic_on_oops = 1
+                net.core.rmem_default = 262144
+                net.core.rmem_max = 4194304
+                net.core.wmem_default = 262144
+                net.core.wmem_max = 1048576
+                net.ipv4.conf.all.rp_filter = 2
+                net.ipv4.conf.default.rp_filter = 2
+                fs.aio-max-nr = 1048576
+                net.ipv4.ip_local_port_range = 9000 65500
+        # execute o comando "/sbin/sysctl -p"
+            /sbin/sysctl -p ou /sbin/sysctl -p /etc/sysctl.d/99-sysctl.conf
+        # add lines in "/etc/security/limits.d/oracle-database-pre-install-18c.conf"
+            oracle soft nofile 1024
+            oracle hard nofile 65536
+            oracle soft nproc 16384
+            oracle hard nproc 16384
+            oracle soft stack 10240
+            oracle hard stack 32768
+            oracle hard memlock 134217728
+            oracle soft memlock 134217728
+        # lib install
+            yum install -y bc
+            yum install -y binutils
+            yum install -y compat-libcap1
+            yum install -y compat-libstdc++-33
+            yum install -y compat-libstdc++-33.i686
+            yum install -y elfutils-libelf.i686
+            yum install -y elfutils-libelf
+            yum install -y elfutils-libelf-devel.i686
+            yum install -y elfutils-libelf-devel
+            yum install -y fontconfig-devel
+            yum install -y glibc.i686
+            yum install -y glibc
+            yum install -y glibc-devel.i686
+            yum install -y glibc-devel
+            yum install -y ksh
+            yum install -y libaio.i686
+            yum install -y libaio
+            yum install -y libaio-devel.i686
+            yum install -y libaio-devel
+            yum install -y libX11.i686
+            yum install -y libX11
+            yum install -y libXau.i686
+            yum install -y libXau
+            yum install -y libXi.i686
+            yum install -y libXi
+            yum install -y libXtst.i686
+            yum install -y libXtst
+            yum install -y libgcc.i686
+            yum install -y libgcc
+            yum install -y librdmacm-devel
+            yum install -y libstdc++.i686
+            yum install -y libstdc++
+            yum install -y libstdc++-devel.i686
+            yum install -y libstdc++-devel
+            yum install -y libxcb.i686
+            yum install -y libxcb
+            yum install -y make
+            yum install -y nfs-utils
+            yum install -y net-tools
+            yum install -y python
+            yum install -y python-configshell
+            yum install -y python-rtslib
+            yum install -y python-six
+            yum install -y smartmontools
+            yum install -y sysstat
+            yum install -y targetcli
+            yum install -y unixODBC
+        
+        # adicionar os grupos
+            groupadd -g 54321 oinstall
+            groupadd -g 54322 dba
+            groupadd -g 54323 oper 
+            #groupadd -g 54324 backupdba
+            #groupadd -g 54325 dgdba
+            #groupadd -g 54326 kmdba
+            #groupadd -g 54327 asmdba
+            #groupadd -g 54328 asmoper
+            #groupadd -g 54329 asmadmin
+            #groupadd -g 54330 racdba
+            useradd -u 54321 -g oinstall -G dba,oper oracle
+# criação/permisoes das pastas ($root)
+    mkdir -p /u01/app/oracle/product/18.3/dbhome_1
+    chown -R oracle:oinstall /u01
+    chmod -R 775 /u01
+
+# configurar bash_profile
+    vi /home/oracle/.bash_profile
+        #.bash_profile
+        export TMP=/tmp
+        export TMPDIR=$TMP
+        export ORACLE_HOSTNAME=base08.localdomain
+        export ORACLE_UNQNAME=ORCL8
+        export ORACLE_BASE=/u01/app/oracle
+        export ORACLE_HOME=$ORACLE_BASE/product/18.3/dbhome_1
+        export ORA_INVENTORY=/u01/app/oraInventory
+        export ORACLE_SID=ORCL8
+        export ORACLE_TERM=xterm
+        export PATH=/usr/sbin:$PATH
+        export PATH=$ORACLE_HOME/bin:$PATH
+        export LD_LIBRARY_PATH=$ORACLE_HOME/lib:/lib:/usr/lib
+        export CLASSPATH=$ORACLE_HOME/jlib:$ORACLE_HOME/rdbms/jlib
+# instalação de binarios ($oracle)
+    - copiar compactado "oracle linux 18c" para a pasta "/u01/app/oracle/product/18.3/dbhome_1"
+    - descompactar arquivo
+        unzip -q LINUX.X64_180000_db_home.zip
+    - executar
+        ./runinstaller
+        # instalar binarios
+            - configuration option
+                set up sofware only
+            - database instalation option
+                single instance
+            - install type
+                enterprise edition (para estudo, lembrar que tem licensa oracle!)
+            -instalation location
+                Oacle base: /u01/app/oracle
+            - create inventory
+                inventory directory: /u01/app/oraInventory
+                oraInventory group name: oinstall
+            - operationg system groups
+                OSDBA: dba
+                OSOPER: oper
+                OSBACKUPDBA: backupdba
+                OSDGDBA: dgdba
+                OSKMDBA: kmdba
+                OSRACDBA: racdba
+            - prerequisite check
+                se falha "physical memory": ignorar - YES
+                outras falhas: corrigir
+            - summary
+                install
+            - install product
+                executar scripts (root)
+                    1° script: /u01/app/oraInventory/orainstRoot.sh (so execução)
+                    2° script: /u01/app/oracle/product/18.3/dbhome_1/root.sh
+                        "Enter the full pathname of the local bin directory:" enter
+                        "Do you want to setup Oracle Trace File Analyzer (TFA) now ? yes|[no]" no
+            - finish
+
+# NETCA (listener)
+    echo $ORACLE_HOME
+        verificar se pasta e: /u01/app/oracle/product/18.3/dbhome_1
+    which netca
+        /u01/app/oracle/product/18.3/dbhome_1/bin/netca
+    - netca
+        Tela 1: Listener configuration
+        Tela 2: Add
+        Tela 3: LISTENER
+        Tela 4: Selected Protocols: TPC
+        Tela 5: Use the standard port number of 1521
+            se erro "configuration assistant use another port number"
+                verificar o IP utilizado, e arquivo "/etc/hosts"
+        Tela 6: no
+        - Configuração de Rede (NETCA)
+            NETCA
+            Tela 1: Naming Methods Configuration
+            Tela 2: Local Naming
+# carregar variaveis e iniciar instalação ($oracle)
+    carregar variaveis
+    - dbca
+        - database operation
+            create database
+        - creation mode
+            advanced mode
+        - database type
+            Oralce single instance
+            general purpose
+        - database identification    
+            Global database Name: <SID>.(dominio) (ex.:ORCL1.localdomain)
+            SID: <SID>
+            - sem container
+                desmarcar "create as container database"
+            - com container (default)
+                [marcar] - create as container database
+                [marcar] - create a container database whit one or more PDBs
+                (escolher quantos PDBs)
+                PDB name prefix: (name)
+                
+        - storage option
+            [escolha] - use following for the database storage attributes
+            database files storage type: file system
+            database files location: {ORACLE_BASE}/oradata/{DB_UNIQUE_NAME}
+            use oracle-management files (OMF)
+        - fast recovery option
+            [escolha] - especify fast recovery area
+                recovery files storage type: file system
+                fast recovery area: {ORACLE_BASE}/fast_recovery_area/{DB_UNIQUE_NAME}
+                fast recovery area size: (default)
+                enable archiving
+        - Network Configuration
+            listener:
+                - caso ja tenha instalado NETCA, ou grid, aceite o listener proposto
+                - sem listener: [marcar] - create a new listener
+                                listener name: (escolha) (ex: LISTENER)
+                                listener port: (padrao - 1521)
+                                [verificar caminho target oracle home: "/u01/app/oracle/product/12.1.0.2/db_01"]
+        
+        - data vault option
+            (tudo desmarcado)
+        - inicialization parameters
+            memory:
+                [escolha] - Use automatic shared memory management
+                    SGA: 1536
+                    PGA: 512
+            sizing: (padrao)
+            character sets:
+                [escolha] - use unicode (AL32UTF8)
+            connection mode:
+                [escolha] - dedicated server mode
+            Sample schema
+                (marcar caso base de estudo)
+        - management options
+            [marcar] - configure Enterprise manager database express
+            port: (padrao: 5500)
+        - user credentials
+            senha: (escolha)
+        - creation options
+            [escolha] - create database
+            [escolha] - generate database Script          
+        
+        - summary:
+            finish
+            
+        - finish
+            salvar EM (https://xxx.xxx.xxx.xxx.localdomain:<port>/em)
+            close
+    
+    # verificar instalação
+        ps -ef | grep pmon
+        sqlplus / as sysdba
+            select instance_name, status from v$instance;
+            select banner_full from v$version;
