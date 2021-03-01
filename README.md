@@ -10,7 +10,11 @@ Aqui você encontra arquivos/tutoriais sobre banco de dados Oracle.
 ## Projetos:
 Veja os tutoriais publicados:
 
-* **Uma nova instalação do Oracle Linux:** https://bityli.com/b90qa
+* **Uma nova instalação do Oracle Linux:** https://url.gratis/ruGhl
+* **Instalação Oracle 12c:** https://url.gratis/vNOTW
+* **instalação Oracle 18c:** https://url.gratis/tRCdn
+* **Instalação Oracle Grid 12c:** https://url.gratis/tKcJs
+* **Monitorar SO:** https://url.gratis/ZIBFx
 
 
 ---
