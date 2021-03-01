@@ -1,0 +1,32 @@
+vim $ORACLE_HOME/sqlplus/admin/glogin.sql
+
+    set echo off
+    set termout off
+    SET TIME ON
+    SET TIMING ON
+    DEFINE_EDITOR=vim
+    define vUsuario=Não Conectado
+    define vBanco=SQL*Plus
+    define vSaudacao=''
+    Column cUsuario New_Value vUsuario
+    Column cBanco New_Value vBanco
+    Column cSaudacao New_Value vSaudacao
+    SELECT 'Bom Dia' cSaudacao FROM Dual 
+        WHERE((SYSDATE >= TO_DATE(TO_CHAR(SYSDATE,'DD\MM\YYYY') || ' 00:00:00','DD\MM\YYYY HH24\MI\SS')) 
+        AND (SYSDATE < TO_DATE(TO_CHAR(SYSDATE,'DD\MM\YYYY') || ' 12:00:00','DD\MM\YYYY HH24\MI\SS')))
+        UNION
+        SELECT 'Boa Tarde' cSaudacao FROM Dual
+            WHERE ((SYSDATE >= TO_DATE(TO_CHAR(SYSDATE,'DD\MM\YYYY') || ' 12:00:00','DD\MM\YYYY HH24\MI\SS'))
+            AND (SYSDATE < TO_DATE(TO_CHAR(SYSDATE,'DD\MM\YYYY') || ' 18:00:00','DD\MM\YYYY HH24\MI\SS')))
+            UNION
+            SELECT 'Boa Noite' cSaudacao FROM Dual
+                WHERE ((SYSDATE >= TO_DATE(TO_CHAR(SYSDATE,'DD\MM\YYYY') || ' 18:00:00','DD\MM\YYYY HH24\MI\SS'))
+                AND (SYSDATE < TO_DATE(TO_CHAR(SYSDATE,'DD\MM\YYYY') || ' 00:00:00','DD\MM\YYYY HH24\MI\SS')));
+                SELECT USER cUsuario FROM DUAL;
+                SELECT UPPER(INSTANCE_NAME) cBanco FROM v$INSTANCE;
+    set termout on
+    prompt &vSaudacao, você está conectado na base &vBanco;
+    set sqlprompt '&vUsuario@&vBanco> '
+    set linesize 1000
+    set termout off
+    set termout on
