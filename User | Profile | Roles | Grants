@@ -1,0 +1,134 @@
+-- USUARIO
+    -- sintaxe
+        CREATE USER [nome_do_usuario]
+        IDENTIFIED BY [Password / Externally as / Globally as]
+        DEFAULT TABLESPACE [nome_da_tablespace]
+        TEMPORARY TABLESPACE [nome_da_tablespace / tablespace_group_name]
+        QUOTA {[INTEGER tamanho / UNLIMITED] ON nome_da_tablespace}
+        PROFILE [nome_do_perfil]
+        PASSWORD [EXPIRE]
+        ACCOUNT [LOCK | UNLOCK]
+        ENABLE [EDITIONS]
+        CONTAINER = [CURRENT | ALL]
+    
+-- PROFILE
+    -- sintaxe
+        CREATE PROFILE [nome_do_profile]
+        LIMIT { resource_parameters | password_parameters } -- linha 20 a 44 (https://docs.oracle.com/database/121/SQLRF/statements_6012.htm#SQLRF01310)
+        CONTAINER = [CURRENT | ALL]
+            -- LIMIT
+                -- RESOURCE PARAMETERS
+                    { { SESSIONS_PER_USER
+                    | CPU_PER_SESSION
+                    | CPU_PER_CALL
+                    | CONNECT_TIME
+                    | IDLE_TIME
+                    | LOGICAL_READS_PER_SESSION
+                    | LOGICAL_READS_PER_CALL
+                    | COMPOSITE_LIMIT
+                    }
+                    { integer | UNLIMITED | DEFAULT }
+                    | PRIVATE_SGA { size_clause | UNLIMITED | DEFAULT }
+                    }
+                -- PASSWORD PARAMETERS
+                    { { FAILED_LOGIN_ATTEMPTS
+                    | PASSWORD_LIFE_TIME
+                    | PASSWORD_REUSE_TIME
+                    | PASSWORD_REUSE_MAX
+                    | PASSWORD_LOCK_TIME
+                    | PASSWORD_GRACE_TIME
+                    }
+                    { expr | UNLIMITED | DEFAULT }
+                    | PASSWORD_VERIFY_FUNCTION
+                    { function | NULL | DEFAULT }
+                    }
+
+    -- SINGLE INSTANCE
+        -- kernel
+            CREATE PROFILE app_user1 LIMIT
+            SESSIONS_PER_USER UNLIMITED
+            CPU_PER_SESSION UNLIMITED
+            CPU_PER_CALL 3000
+            CONNECT_TIME 45
+            IDLE_TIME 60
+            LOGICAL_READS_PER_SESSION DEFAULT
+            LOGICAL_READS_PER_CALL 1000
+            PRIVATE_SGA 15K
+            COMPOSITE_LIMIT 5000000;
+        
+        -- password
+            CREATE PROFILE app_user2 LIMIT
+            FAILED_LOGIN_ATTEMPTS 5
+            PASSWORD_LIFE_TIME 60
+            PASSWORD_REUSE_TIME 60
+            PASSWORD_REUSE_MAX 5
+            PASSWORD_VERIFY_FUNCTION DEFAULT
+            PASSWORD_LOCK_TIME 1/24
+            PASSWORD_GRACE_TIME 10;
+        
+        -- password + kernel
+            CREATE PROFILE app_user3 LIMIT
+            FAILED_LOGIN_ATTEMPTS 5
+            PASSWORD_LIFE_TIME 60
+            PASSWORD_REUSE_TIME 60
+            PASSWORD_REUSE_MAX 5
+            PASSWORD_VERIFY_FUNCTION DEFAULT
+            PASSWORD_LOCK_TIME 1/24
+            PASSWORD_GRACE_TIME 10
+            SESSIONS_PER_USER UNLIMITED
+            CPU_PER_SESSION UNLIMITED
+            CPU_PER_CALL 3000
+            CONNECT_TIME 45
+            IDLE_TIME 60
+            LOGICAL_READS_PER_SESSION DEFAULT
+            LOGICAL_READS_PER_CALL 1000
+            PRIVATE_SGA 15K
+            COMPOSITE_LIMIT 5000000;
+
+        --alterar PROFILE
+            alter user <user> PROFILE <profile_name>
+            alter user ANDRE PROFILE app_user2
+
+        -- quotas 
+            SELECT USERNAME, TABLESPACE_NAME, BYTES/1024/1024 as BYTES, CONCAT(MAX_BYTES/1024/1024, 'MB') as MAX_BYTES_MB
+            FROM DBA_TS_QUOTAS
+            WHERE USERNAME = 'ANDRE';
+
+-- ROLE
+    -- sintaxe
+        CREATE ROLE <NAME>
+        [ NOT IDENTIFIED | IDENTIFIED { BY password | USING [ schema. ]
+        package | EXTERNALLY | GLOBALLY } ]
+        [ CONTAINER = { CURRENT | ALL } ] ;
+
+-- GRANT
+    -- sintaxe
+        GRANT grant_system_privileges | grant_object_privileges to <user | role>
+            CONTAINER = CURRENT | ALL;
+            grant_roles_to_programs;
+            whit admin option;
+
+            https://docs.oracle.com/database/121/SQLRF/statements_9014.htm#SQLRF01603
+                Tabela 18-1 - privilégios do sistema.
+                Tabela 18-2 - privilégios de objeto.
+
+            PS.: "admin option": pode conceder privilegios a outro user
+
+    -- Consultando e concedendo privilegio para usuários
+        -- todos privilegios de usuario e roles
+        SELECT * FROM DBA_SYS_PRIVS;
+        
+        -- todas roles de usuarios
+        SELECT * FROM DBA_ROLE_PRIVS;
+
+        -- privilegio de usuarios em tabelas
+        SELECT * FROM ALL_TAB_PRIVS;
+
+        -- SQL de revoke
+            revoke <role_name> | <grantee> | <privilege> from <user>
+
+            https://docs.oracle.com/cd/B19306_01/server.102/b14200/statements_9020.htm#i2100253
+
+        -- criar role
+            CREATE role <role_name>;
+                grant <privilege> to <role_name>
