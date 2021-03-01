@@ -1,0 +1,245 @@
+- instalação oracleasm (modo 1)
+    wget http://yum.oracle.com/repo/OracleLinux/OL7/latest/x86_64/getPackage/oracleasm-support-2.1.11-2.el7.x86_64.rpm
+    rpm -ivh oracleasm-support-2.1.11-2.el7.x86_64.rpm
+
+- instalação oracleasm (modo 2)
+    yum install -y oracleasm-support
+    
+    - Instalação oracle asmlib
+        wget http://download.oracle.com/otn_software/asmlib/oracleasmlib-2.0.12-1.el7.x86_64.rpm
+        rpm -ivh oracleasmlib-2.0.12-1.el7.x86_64.rpm
+        yum install -y kmod-oracleasm
+# configuração dos discos grid
+    oracleasm configure -i
+    Default user to own the driver interface []: oracle
+    Default group to own the driver interface []: oinstall
+    Start Oracle ASM library driver on boot (y/n) [n]: y
+    Scan for Oracle ASM disks on boot (y/n) [y]: y
+    Writing Oracle ASM library driver configuration: done
+
+# iniciar serviço
+    oracleasm ini
+# Verificar o status
+    oracleasm status
+    
+# Verificar discos existentes
+    fdisk -l /dev/sd*
+
+# formtar discos (todos os discos usado no ASM)
+    fdisk /dev/sdb
+        - comandos
+            help: m
+            add a new partition: n
+            primary (0 primary, 0 extended, 4 free): p
+            default: 1
+            First sector: enter
+            Last sector: enter
+            salvar: w
+# visualizar discos
+    ls -ltr /dev/sd*
+
+# Criação dos discos ASM
+    oracleasm createdisk ASMDISK0(numero) /dev/sd(letra)1
+
+# Realizar o scan dos discos
+    oracleasm scandisk
+# Liste todos os discos criados
+    oracleasm listdisks
+
+# Instalação do cvuqdisk
+    cd /home/oracle/grid/rpm
+    ls -lh
+    rpm -ivh cvuqdisk-1.0.9-1.rpm
+
+# carregar variaveis e iniciar instalação ($oracle)
+    - copiar compactado "oracle grid 12c" para a pasta "/home/oracle/stage"
+    - descompactar arquivo
+        unzip -q linuxamd64_12102_grid_1of2
+        unzip -q linuxamd64_12102_grid_2of2
+    source /home/oracle/.bash_profile
+    db_env
+    echo $ORACLE_SID
+    echo $ORACLE_HOME
+    cd /home/oracle/grid
+    - executar
+        ./runInstaller
+        # instalar binarios
+            - instalation options
+                install and configure oracle grid infrastruture for a standalone
+            
+            - product language
+                English
+            
+            - create AMS disk group
+                Disk group name: CRS
+                Redundancy: External
+                Add disks: ORCL:ASMDISK01
+            
+            - ASM Password
+                (same Password)
+            management options
+                (desmarcar)
+            
+            operation system groups
+                OSASM: oinstall
+                OSDBA for ASM: dba
+                OSOPER for ASM: oper
+            
+            - instalation location
+                Oracle base: /u01/app/oracle
+                Software location: /u01/app/oracle/product/12.1.0.2/grid
+            - creation inventory
+                Inventory Directory: /u01/app/oraInventory
+            
+            - root scrip execution
+                (desmarcar)
+            - prerequisit check
+                ignore all (caso base de teste e erro de memoria)
+            
+            - summary
+                install
+            
+            - install product
+                executar os Script ($root)
+                    1° script: /u01/app/oraInventory/orainstRoot.sh (so execução)
+                    2° script: /u01/app/oracle/product/12.1.0.2/db_1/root.sh (ao pedir, aperte enter)
+    # Oracle ASM Configuration Assistant (ASMCA) ($oracle)
+        rodar em GUI
+        grid_env
+        asmca
+            redundancia: external
+                add disk: 1
+            redundancia: normal
+                add disk: 2    
+            redundancia: high
+                add disk: 3
+            (caso erro "Set DISPLAY environment variable, then re-run.")
+            -roda em ambiente com GUI (DISPLAY)
+            Disk Group “DATA”
+                Escolher 2 discos de 10GB e colocar o nome do DG chamado “DATA”.
+            Disk Group “FRA”
+                Escolher 2 discos de 10GB e colocar o nome do DG chamado “FRA”.
+        
+# SRVCTL (Service Control)
+    - status grid pelo SRVCTL
+        srvctl status asm
+    - parar grid pelo SRVCTL
+        srvctl stop diskgroup -help
+        srvctl stop diskgroup (dg_name) (parar todos (dg_name))
+        srvctl stop asm
+    
+    - iniciar grid pelo SRVCTL
+        srvctl start listener
+    - status listener (pelo SRVCTL)
+        srvctl status listener
+    - parar listener (pelo SRVCTL)
+        srvctl stop listener
+# CRSCTL (Cluster Control)
+    - para status grid pelo CRSCTL
+        crsctl stat res -t
+            ora.dismon - offline ("online em exadate")
+            ora.ons - offline ("online em RAC"
+    - para parar grid pelo CRSCTL
+        crsctl stop res ora.(dg_name).dg -init "para todos (dg_name)"
+        crsctl stop res ora.asm -init
+    
+    - para iniciar grid pelo CRSCTL
+        crsctl start res ora.asm -ini
+    - checar todos os serviços
+        crsctl check ha
+    - parar todos os serviços
+        crsctl stop has
+    
+    - iniciar todos os serviços
+        crsctl start has
+    - exadate
+        crsctl start res ora.diskmon -ini
+    - RAC
+        crsctl start res ora.ons -ini
+# verificação da instancia
+    grid_env
+    sqlplus / as sysasm (ou "rlwrap sqlplus / as sysasm")
+    select status from v$instance
+# parametros de inicialização
+    - ASM_DISKGROUPS
+        show parameter ASM_DISKGROUPS
+    
+    - parametros de ASM_POWER_LIMIT (0 a 11: ASM < 11.2.0.2 | 0 a 1024: ASM => 11.2.0.2)
+        show parameter ASM_POWER_LIMIT
+    - DIAGNOSTIC_DEST
+        show parameter DIAGNOSTIC_DES
+# views
+    https://docs.oracle.com/database/121/OSTMG/GUID-7CAB3FBA-5B76-4F30-A13F-C4C16BD59147.htm#OSTMG10031
+    
+# selects nas views
+    select NAME, GROUP_NUMBER, DISK_NUMBER, COMPOUND_INDEX, MOUNT_STATUS, HEADER_STATUS, MODE_STATUS, STATE, REDUNDANCY, OS_MB, TOTAL_MB, FREE_MB
+        FROM V$ASM_DISK;
+    
+    select GROUP_NUMBER, NAME, BLOCK_SIZE, ALLOCATION_UNIT_SIZE, STATE, TYPE, TOTAL_MB, FREE_MB, USABLE_FILE_MB
+        from V$ASM_DISKGROUP
+        order by GROUP_NUMBER;
+    
+    set pagesize 200
+    set linesize 200
+    column path format a20
+    column DISKGROUP format a10
+    column DISKNAME format a10
+    column FAILGROUP format a10
+    column DISKNAME format a10
+    select A.NAME DISKGROUP, B.DISK_NUMBER DISK#, B.NAME DISKNAME, B.FAILGROUP, A.TYPE, B.TOTAL_MB, 
+        -- B.FREE_MB, 
+        B.PATH, B.MOUNT_STATUS, B.HEADER_STATUS
+        from V$ASM_DISK B, V$ASM_DISKGROUP A
+        where A.GROUP_NUMBER (+) =B.GROUP_NUMBER
+        ORDER BY B.GROUP_NUMBER, B.DISK_NUMBER, B.NAME
+# SQL ASM
+    - criar diskgroup
+        CREATE DISKGROUP DATA2 NORMAL REDUNDANCY
+        FAILGROUP FG1 DISK 'ORCL:ASMDISK04' NAME ASMDISK04
+        FAILGROUP FG2 DISK 'ORCL:ASMDISK05' NAME ASMDISK05
+    - add disco ao diskgroup
+        ALTER DISKGROUP <DISKGROUP> ADD
+        FAILGROUP <FAILGROUP> DISK'ORCL:<DISKNAME>' NAME <DISKNAME>
+    - remover disco do diskgroup
+        ALTER DISKGROUP <DISKGROUP> DROP DISK <DISKNAME>
+    - desmontar diskgroup
+        ALTER DISKGROUP <DISKGROUP> DISMOUNT
+    - montar diskgroup
+        ALTER DISKGROUP <DISKGROUP> MOUNT
+    - deletar diskgroup (somente em diskgroup "mount")
+        DROP DISKGROUP <DISKGROUP>
+    - verificar consistencia do diskgroup
+        ALTER DISKGROUP DATA CHECK ALL REPAIR
+    - rebalanceamento de discos
+        column COMPATIBILITY format a20
+        column DATABASE_COMPATIBILITY format a20
+        SELECT NAME, GROUP_NUMBER, BLOCK_SIZE, ALLOCATION_UNIT_SIZE, STATE, TYPE, TOTAL_MB, FREE_MB, USABLE_FILE_MB, COMPATIBILITY, DATABASE_COMPATIBILITY 
+            FROM V$ASM_DISKGROUP;
+    - alterar parametro inicializar todos os discos
+        ALTER SYSTEM SET ASM_DISKGROUPS = DATA,FRA,DATA2
+            SCOPE =BOTH SID='+ASM';
+    
+# asmcmd (comandos no ASM)
+    ls -l (visualizar discos)
+    cd: muda para diretorios
+    cp: copia
+    du: espaço em disco no diretorios
+    exit: sistema
+    find: localizar arquivos
+    help
+    lsct: lista bancos no ASM
+    lsdg: lista grupos de discos e mostra informações
+    lsdsk: lista grupos de disco
+    md_backup: cria um backup dos metadados dos grupos de discos montados
+    md_restore: restauro os metadados dos grupos dos disco
+    mkalias: cria um aliasde arquivos
+    mkdir: cria diretorio no ASM
+    pwd: diretorio atual
+    remap: corrigir intervalor de blocos fisicos danificados
+    rm: remove arquivos
+    rmalias: remove alias
+    
+    https://docs.oracle.com/database/121/OSTMG/GUID-3BA40908-0543-4968-B834-BD4D873E1059.htm#OSTMG0164
+
+# alert do ASM
+    /u01/app/oracle/diag/asm/+asm/+ASM/
