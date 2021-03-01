@@ -1,0 +1,129 @@
+# criar partição (caso nao esteja criada)
+    # on oracle vm
+        - VM desligada
+        - propriedades da vm
+        - add new disk
+    
+    # aumentar swap - on linux ($root)
+        - verificar discos
+            fdisk -l /dev/sdb
+        
+        # formatar disco 
+            fdisk /dev/sdb
+                - Command (m for help): n
+                    (add a new partition)
+                - Partition type: p
+                    (primary)
+                - Partition number (1-4, default 1): 1
+                - First sector (2048-104857599, default 2048): <enter>
+                - Last sector, +sectors or +size{K,M,G} (2048-104857599, default 104857599): <ente
+                - Command (m for help): p
+                    (para verificar partição)
+                - Command (m for help): t
+                    (change a partitions system id)
+                - Hex code (type L to list all codes): l
+                    (listar hex code - verificar linux LVM)
+                - Hex code (type L to list all codes): 8e
+                - Command (m for help): p
+                - Command (m for help): w
+        
+        - pvs
+            (consultar volumes fisicos)
+            
+        - lvs
+            (consultar volumes logicos)
+            
+        - pvcreate /dev/sdb1
+            (criar volume fisico para o swap)
+        
+        - vgs
+            (consulta volume group)
+            
+        - vgextend ol /dev/sdb1
+            extendendo a partição
+                vgextend: comando para extender partição
+                ol: qual o grupo que sera extendido (verificar pelo "vgs")
+                /dev/sdb1: partição a ser extendida
+
+        - fdisk -l
+            verificar nome do disco
+            Disk /dev/mapper/ol-swap: 4294 MB, 4294967296 bytes, 8388608 sectors
+                nome do disco: /dev/mapper/ol-swap
+                tamanho do disco (swap): 4294 MB
+                tamanho do disco em bytes: 4294967296
+                numero de setores: 8388608
+                
+        - free -m
+            verificar memoria e swap
+            
+        - swapoff -v /dev/mapper/ol-swap
+            put swap off
+            
+        - free -m
+            verificar que swap esta off
+            
+        - lvm lvresize /dev/mapper/ol-swap -L 8G
+            resize do swap
+                lvm: logical volume
+                lvresize: comando para resize de partição logica
+                /dev/mapper/ol-swap: partição a sofre resize
+                -L: parametro para tamanho
+                
+        - mkswap /dev/mapper/ol-swap
+            configurar area de swap
+            
+        - swapon /dev/mapper/ol-swap
+            put swap on
+            
+        - free -m
+            verificar espaço
+            
+    # aumentar TMP - on linux ($root)
+        - lvs
+            verificar volume logicos
+            
+        - df -hT
+            verificar sistema de arquivo (ext | xfs)
+            
+        - fdisk -l
+        
+        # caso nao esteja criado
+            - criar disco
+                lvcreate -L 20G -n tmp ol
+                lvcreate: criar partição logica
+                -L 20G: tamanho que deseja (pode ser '-L xxx%')
+                -n tmp: nome da partição
+                ol: grupo de disco 
+            - configurar disco
+                mkfs.xfs /dev/mapper/ol-tmp
+            - criar pasta dentro da partição (caso necessario)
+                mkdir /<nome>
+            - vim /etc/fstab
+                and add a new entry
+                    /dev/mapper/ol-tmp     /tmp                       xfs     defaults        0 0
+                    endereço do disco: /dev/mapper/ol-tmp
+                    nome do disco: /tmp
+                    tipo de arquivos: xfs
+                    default
+                    0 0
+            - montar disco
+                - 1° opção: mount -a
+                - 2° opção: mount /dev/mapper/ol-tmp /tmp
+            
+            # caso seja partição para armazenamento de dados, alterar permisoes
+                chown -R oracle:oinstall /<partição>
+                chmod -R 775 /<partição>
+                
+        # caso tenha criado incorretamente
+            umount /dev/mapper/ol-tmp
+            lvremove /dev/mapper/ol-tmp
+                Do you really want to remove active logical volume "tmp"? [y/n]: y
+                
+        # caso ja tenha /tmp
+            - lvm lvresize /dev/mapper/ol-tmp -L 20G
+            - lvs
+            - df -h
+            - resize
+                xfs: xfs_growfs /dev/mapper/ol-tmp
+                ext: resize2fs /dev/mapper/ol-tmp
+            - df -h
