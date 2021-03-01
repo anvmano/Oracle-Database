@@ -1,0 +1,185 @@
+--CRIAR TABLESPACE
+    -- Sintaxe
+        CREATE  [SMALLFILE/BIGFILE/TEMPORARY <GROUP> /UNDO <RETENTION>]
+        TABLESPACE [tablespace_name]
+        DATAFILE/TEMPFILE [nome_caminho_arq_datafile01]
+        SIZE [INTEGER <tamanho>]
+        REUSE
+        AUTOEXTEND { [OFF/ON (NEXT <INTEGER tamanho> MAXSIZE
+        <INTEGER tamanho>) / UNLIMITED ] }
+        BLOCKSIZE <INTEGER 2k/4k/8k/16k/32k>
+        LOGGING | NOLOGGING
+        ENCRYPTION <tablespace_encryption_spec>
+        ONLINE | OFFLINE
+        EXTENT MANAGEMENT [LOCAL (AUTOALLOCATE/UNIFORM
+        <integer tamanho>)]
+        SEGMENT SPACE MANAGEMENT [AUTO | MANUAL]
+        FLASHBACK [ON | OFF]
+
+--tablespace
+    -- criar tablespace
+        CREATE SMALLFILE TABLESPACE TBS1_BASE01
+        DATAFILE '/u01/app/oracle/oradata/ORCL1/datafile/tbs1_base01.dbf'
+        SIZE 100M
+        AUTOEXTEND ON NEXT 100M MAXSIZE 1G
+        BLOCKSIZE 8K
+        LOGGING ONLINE
+        EXTENT MANAGEMENT LOCAL AUTOALLOCATESEGMENT SPACE MANAGEMENT AUTO
+        FLASHBACK ON;
+
+    -- criar tablespace com 2+ datafiles
+        CREATE SMALLFILE TABLESPACE TBS2_BASE01
+        DATAFILE '/u01/app/oracle/oradata/ORCL1/datafile/tbs2_base01.dbf' SIZE 100M,
+        '/u01/app/oracle/oradata/ORCL1/datafile/tbs2_base01_2.dbf' SIZE 100M
+        AUTOEXTEND ON NEXT 100M MAXSIZE 1G
+        BLOCKSIZE 8K
+        LOGGING ONLINE
+        EXTENT MANAGEMENT LOCAL AUTOALLOCATE
+        SEGMENT SPACE MANAGEMENT AUTO
+        FLASHBACK ON;
+
+-- datafile
+    -- criar bigfile
+        CREATE BIGFILE TABLESPACE TBS_BF_1_BASE01
+        DATAFILE '/u01/app/oracle/oradata/ORCL1/datafile/tbs_bf_1_base01.dbf' SIZE 100M
+        AUTOEXTEND ON NEXT 100M MAXSIZE 1G
+        BLOCKSIZE 8K
+        LOGGING ONLINE
+        EXTENT MANAGEMENT LOCAL AUTOALLOCATE
+        SEGMENT SPACE MANAGEMENT AUTO
+        FLASHBACK ON;
+
+    -- alterar datafile
+        ALTER TABLESPACE TBS1_BASE01
+        ADD DATAFILE '/u01/app/oracle/oradata/ORCL/datafile/tbs1_base01_2.dbf' SIZE 100M
+        AUTOEXTEND ON NEXT 100M MAXSIZE 1G;
+
+    -- dropar datafile
+        ALTER TABLESPACE TBS2_BASE01
+        DROP DATAFILE '/u01/app/oracle/oradata/ORCL/datafile/tbs2_base01_2.dbf ';
+
+-- criar tablespace encripitada
+    -- localizar pasta wallet
+        cd $ORACLE_BASE/admin/$ORACLE_SID/wallet
+
+    -- caso nao tenha pasta wallet, criar
+        -- sqlplus: !mkdir $ORACLE_BASE/admin/$ORACLE_SID/wallet
+        #linux: mkdir $ORACLE_BASE/admin/$ORACLE_SID/wallet
+
+    -- criar key encripitada
+        ALTER SYSTEM SET ENCRYPTION KEY AUTHENTICATED BY "123456";
+    
+    -- shutdown -> startup
+
+    -- abrir wallet
+        ALTER SYSTEM SET WALLET OPEN IDENTIFIED BY "123456";
+
+    -- criar 
+        CREATE SMALLFILE TABLESPACE TBS_BASE01_ENCRYPT
+        DATAFILE -- Quando não especificamos o nome, usamos o OMF.
+        SIZE 100M
+        ENCRYPTION USING 'AES128'
+        DEFAULT STORAGE (ENCRYPT);
+
+-- TEMPORARY
+    -- tablespace TEMPORARY
+        CREATE SMALLFILE TEMPORARY TABLESPACE TBS1_BASE01_TEMP
+        TEMPFILE '/u01/app/oracle/oradata/ORCL1/datafile/tbs1_base01_temp.dbf' SIZE 100M
+        AUTOEXTEND ON NEXT 100M MAXSIZE 1G
+        BLOCKSIZE 8K;
+
+    -- criar tablespace em um grupo temp
+        CREATE SMALLFILE TEMPORARY TABLESPACE TBS2_BASE01_TEMP 
+        TEMPFILE '/u01/app/oracle/oradata/ORCL1/datafile/tbs2_base01_temp.dbf'
+        SIZE 100M
+        AUTOEXTEND ON NEXT 100M MAXSIZE 1G
+        BLOCKSIZE 8K
+        TABLESPACE GROUP TBS_TEMP_BASE01_GROUP;
+
+    -- add tablespace em um grupo
+        ALTER TABLESPACE TBS1_BASE01_TEMP
+        TABLESPACE GROUP TBS_TEMP_BASE01_GROUP;
+
+    -- remover tablespace temp de um grupo
+        ALTER TABLESPACE TBS1_BASE01_TEMP
+        TABLESPACE GROUP '';
+
+    -- tornar tablespace temp como padrão
+        ALTER DATABASE DEFAULT TEMPORARY
+        TABLESPACE TBS1_BASE01_TEMP;
+
+-- UNDO
+    -- criar tablespace de UNDO
+        CREATE SMALLFILE UNDO TABLESPACE TBS_BASE01_UNDO
+        DATAFILE '/u01/app/oracle/oradata/ORCL1/datafile/tbs_base01_undo'
+        SIZE 100M
+        AUTOEXTEND ON NEXT 100M MAXSIZE 1G
+        BLOCKSIZE 8K
+        RETENTION GUARANTEE;
+    
+    -- alterar undo (GUARANTEE -> noguarantee)
+        ALTER TABLESPACE TBS_BASE01_UNDO RETENTION NOGUARANTEE;
+
+-- Alterando um parâmetro de uma tablespace permanente (verificar procedimento para "flashback off")
+    ALTER TABLESPACE TBS1_BASE01 FLASHBACK OFF;
+
+-- Colocando uma tablespace offline
+    ALTER TABLESPACE TBS1_BASE01 OFFLINE;
+
+-- Colocando uma tablespace online
+    ALTER TABLESPACE TBS1_BASE01 ONLINE;
+
+-- Colocando uma tablespace em modo de leitura
+    ALTER TABLESPACE TBS1_BASE01 READ ONLY;
+
+-- Colocando uma tablespace em modo de leitura e escrita
+    ALTER TABLESPACE TBS1_BASE01 READ WRITE;
+
+-- Renomeando uma tablespace
+    ALTER TABLESPACE TBS1_BASE01 RENAME TO TBS1_BASE01_NEW;
+
+-- Redimensionando um datafile
+    SELECT FILE_NAME, TABLESPACE_NAME, STATUS, ONLINE_STATUS, BYTES/1024/1024 AS TAMANHO_MB
+    FROM DBA_DATA_FILES WHERE TABLESPACE_NAME = 'TBS1_BASE01'
+
+    ALTER DATABASE DATAFILE '/u01/app/oracle/oradata/ORCL/datafile/tbs1_base01.dbf' RESIZE 200M;
+
+-- excluindo tablespace
+    -- sintaxe
+        DROP TABLESPACE <tablespace_name> [INCLUDING CONTENTS
+        [AND DATAFILES
+        [CASCADE CONSTRAINTS]]]
+
+    -- drop tablespace
+        DROP TABLESPACE <tablespace_name>;
+
+-- consultas em tablespace
+    -- tablespace acessiveis ao usuario conectado 
+    SELECT * FROM DBA_TABLESPACES;
+
+    -- informações de tablespace direto do controlfile 
+    SELECT * FROM V$TABLESPACE;
+    
+    -- metricas de todas as tablespace
+    SELECT * FROM DBA_TABLESPACE_USAGE_METRICS;
+    
+    -- todos os datafiles do banco
+    SELECT TABLESPACE_NAME, FILE_NAME FROM DBA_DATA_FILES;
+    
+    -- informações sobre cabeçado dos datafiles
+    SELECT * FROM V$DATAFILE_HEADER;
+    
+    -- TEMPORARY tablespace 
+    SELECT * FROM DBA_TEMP_FILES;
+    
+    -- grupos de tablespace
+    SELECT * FROM DBA_TABLESPACE_GROUPS;
+    
+    -- informações sobre tablespace encripitada
+    SELECT * FROM V$ENCRYPTED_TABLESPACES;
+    
+    -- todas as views DBA
+    SELECT * FROM ALL_VIEWS WHERE VIEW_NAME LIKE 'DBA%';
+
+    -- Local padrão de armazenamento dos datafiles
+    SELECT * FROM V$PARAMETER WHERE NAME = 'db_create_file_dest';
