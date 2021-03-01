@@ -15,6 +15,13 @@ Veja os tutoriais publicados:
 * **instalação Oracle 18c:** https://url.gratis/tRCdn
 * **Instalação Oracle Grid 12c:** https://url.gratis/tKcJs
 * **Monitorar SO:** https://url.gratis/ZIBFx
+* **Multiplexando control file:** https://url.gratis/t723o
+* **Aumentar swap e partições:** https://url.gratis/bHLPf
+* **Firewall no linux:** https://url.gratis/A3RyV
+* **Scrip para startup automatico:** https://url.gratis/tP3h2
+* **Parametros do GLOGIN:** https://url.gratis/Y7Txn
+* **Comando sobre tablespace:** https://url.gratis/TNhHm
+* **User | Profile | Roles | Grants:** https://url.gratis/xW2wZ
 
 
 ---
