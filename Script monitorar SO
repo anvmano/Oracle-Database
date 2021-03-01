@@ -1,0 +1,28 @@
+#!bin/bash
+echo "Relatorio: `date`"
+echo "--------------------"
+echo ""
+echo "Tempo de Atividade: `uptime`"
+echo "--------------------"
+echo ""
+echo "Sessoes Conectadas: "
+who
+echo "--------------------"
+echo ""
+echo "Last logins: "
+last -a |head -3
+echo "--------------------"
+echo ""
+echo "Consumo de disco: "
+df -h | xargs | awk '{print "Free/total disk: " $11 " / " $9}'
+echo "--------------------"
+echo ""
+echo "Consumo de memoria: "
+free -m | xargs | awk '{print "Free/total memory: " $17 " / " $8 " MB"}'
+echo "--------------------"
+echo ""
+echo "Processos mais pesados: "
+top -b |head -3
+echo ""
+top -b |head -10 |tail -4
+echo "--------------------"
