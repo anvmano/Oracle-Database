@@ -1,0 +1,54 @@
+-- multiplexando control file (copia)
+    verificar controlfile existente
+        SELECT STATUS, NAME, IS_RECOVERY_DEST_FILE
+            FROM V$CONTROLFILE;
+
+    adicionar no parametros de controlfile, os novos locais ("obrigatorio colocar controfile ja existente")
+        ALTER SYSTEM SET CONTROL_FILES = '/u01/app/oracle/oradata/ORCL4/controlfile/<xxxxxxxxxx>.ctl',
+            '/u01/app/oracle/fast_recovery_area/ORCL4/controlfile/<yyyyyyyyyy>.ctl',
+            '/u02/app/oracle/oradata/ORCL4/controlfile/control03.ctl'
+            scope=spfile;
+
+    shutdown (necessario para que controlfile nao seja alterado durante a copia)
+        shutdown immediate;
+
+    copiar controfile para novo local
+        cp /u01/app/oracle/oradata/ORCL4/controlfile/<xxxxxxxxxx>.ctl /u02/app/oracle/oradata/ORCL4/controlfile/control03.ctl
+
+    iniciar a instancia
+        sqlplus / as sysdba
+        startup;
+        -- caso erro "ORA-00205: error in identifying control file, check alert log for more info"
+            verificar se controlfile foi copiado, permisoes do diretorio.
+    
+    verificar controlfile existente
+        SELECT STATUS, NAME, IS_RECOVERY_DEST_FILE
+            FROM V$CONTROLFILE;
+
+-- multiplexando control file (RMAN)
+    verificar controlfile existente
+        SELECT STATUS, NAME, IS_RECOVERY_DEST_FILE
+            FROM V$CONTROLFILE;
+
+    adicionar no parametros de controlfile, os novos locais ("obrigatorio colocar controfile ja existente")
+        ALTER SYSTEM SET CONTROL_FILES = '/u01/app/oracle/oradata/ORCL4/controlfile/<xxxxxxxxxx>.ctl',
+            '/u01/app/oracle/fast_recovery_area/ORCL4/controlfile/<yyyyyyyyyy>.ctl',
+            '/u02/app/oracle/oradata/ORCL4/controlfile/control03.ctl'
+            scope=spfile;
+
+    shutdown (necessario para que controlfile nao seja alterado durante o processo)
+        shutdown immediate;
+
+    RMAN
+        rman target /
+        restore controlfile from '/u01/app/oracle/oradata/ORCL4/controlfile/<xxxxxxxxxx>.ctl';
+        alter database mount;
+        alter database open;
+        exit
+        -- caso erro "ORA-00205: error in identifying control file, check alert log for more info"
+            verificar se controlfile foi copiado, permisoes do diretorio.
+    
+    verificar controlfile existente
+        sqlplus / as sysdba
+        SELECT STATUS, NAME, IS_RECOVERY_DEST_FILE
+            FROM V$CONTROLFILE;
