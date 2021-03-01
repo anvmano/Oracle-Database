@@ -1,0 +1,99 @@
+# caso firewall nao estiver instalado
+    yum -y install firewalld 
+
+# startar o firewall
+    systemctl enable firewalld
+    systemctl start firewalld
+
+# Erro apresentado quando firewall ativo e sem liberação
+    sql developer
+        Ocorreu um erro ao executar a operação solicitada:
+        Erro de ES: The Network Adapter could not establish the connection
+        Código de fornecedor 17002
+    SSH
+        network error: conection timed out
+
+# comandos de firewall
+    - help    
+        firewall-cmd --help
+    
+    - status
+        firewall-cmd --state
+    
+    - zonas ativas (rede)
+        firewall-cmd --get-active-zones
+    
+    - serviços (predefinidos) ativos
+        firewall-cmd --get-service
+    
+        - listar serviços
+            ls /usr/lib/firewalld/services/
+    
+    - lista serviços publicos
+        firewall-cmd --zone=public --list-services
+    
+    - lista serviços permanentes
+        firewall-cmd --permanent --zone=public --list-services
+    
+    - lista portas dos ativas
+        firewall-cmd --zone=public --list-ports --permanent
+    
+    - liberar portas (publica e permanente)
+        firewall-cmd --zone=public --add-port=22/tcp --permanent
+    - remover portas
+        firewall-cmd --permanent --zone=public --remove-port=<porta>/tcp
+
+# PASOS PARA ABRIR PORTA:
+    - verificar firewall
+        firewall-cmd --state
+
+    - habilitar caso necessario
+        systemctl enable firewalld
+        systemctl start firewalld
+
+    - verificar portas/serviços liberadas
+        serviços
+            firewall-cmd --zone=public --list-services
+            firewall-cmd --permanent --zone=public --list-services
+        portas
+            firewall-cmd --zone=public --list-ports
+            firewall-cmd --permanent --zone=public --list-ports
+
+    - liberar portas/serviço (como permanente ou nao)
+        permanente
+            firewall-cmd --zone=public --add-port=22/tcp --permanent
+            firewall-cmd --zone=public --add-service=22/tcp --permanent
+        nao permanente
+            firewall-cmd --zone=public --add-port=22/tcp
+            firewall-cmd --zone=public --add-service=22/tcp
+
+    - reload
+        firewall-cmd --reload
+
+    - verificar portas liberadas (como permanente ou nao)
+        (linha 54 - 60)
+
+# PASOS PARA REMOVER SERVIÇOS/PORTAS
+    - verificar firewall
+        firewall-cmd --state
+
+    - verificar portas/serviços liberadas
+        serviços
+            firewall-cmd --zone=public --list-services
+            firewall-cmd --permanent --zone=public --list-services
+        portas
+            firewall-cmd --zone=public --list-ports
+            firewall-cmd --permanent --zone=public --list-ports
+
+    - remover portas (como permanente ou nao)
+        permanente
+            firewall-cmd --permanent --zone=public --remove-port=<porta>/tcp
+            firewall-cmd --permanent --zone=public --remove-service=<serviço>
+        nao permanente
+            firewall-cmd --reload
+
+    - reload
+        firewall-cmd --reload
+
+    - verificar portas/serviços liberados (como permanente ou nao)
+        (linha 54 - 60)
