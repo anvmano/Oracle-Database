@@ -1,0 +1,94 @@
+# Oracle linux
+    # time
+        fuso horario
+    
+    # keybord
+        configurar (escolher teclado)
+        
+    # Server with GUI
+        Hardware Monitoring Utilities
+        Large Systems Performance
+        Network file system client
+        Performance Tools
+        Compatibility Libraries
+        Development Tools
+
+    # Instalation destination - I will patidion manually
+        # I will configure partition
+            sda1 1024 MB /boot (Standard Partition)
+            sda2 100000 MB / (LVM - Logic Volume Manager)
+            sda3 20000 MB /home (LVM)
+            sda5 4096 MB swap (LVM)
+            sda6 10000 MB /var (LVM)
+            sda7 10000 MB /tmp (LVM)
+            sda8 Espaço restante /u01 (LVM - Maior espaço)
+            #(caso pouco espaço)
+                sda1 1024 MB /boot (Standard Partition)
+                sda2 4096 MB swap (LVM - Logic Volume Manager)
+                sda3 Espaço restante / (LVM - Maior espaço)
+    # kdump
+        disable
+    
+    # Network & Host Name
+        Host name: (Hostname).localdomain
+        Automatically connect to this network when it is avalible
+        Ipv4 Settings (Manual)
+            Adress: IP (Verificar sua rede local)
+            Netmask: 255.255.255.0 (/24)
+            Gateway: (Gateway)
+            DNS: 8.8.8.8,8.8.4.4
+    
+    ($root)
+    # User Settings
+        Root Password
+            (SENHA)
+    # instalar adicionais de convidado
+        (somente para VM)
+        
+    # Alteração do hosts
+        vi /etc/hosts
+            (IP) <SID> <SID>.localdomain
+            
+    # Firewall
+        service iptables status -- Oracle linux 6
+        systemctl status firewalld -- Oracle linux 7
+        setup -- Interface
+        systemctl stop firewalld
+        systemctl disable firewalld
+        systemctl start firewalld
+        systemctl enable firewalld
+    
+    # Selinux
+        sestatus | grep -i mode
+        vim /etc/selinux/config
+        (yyp - copia linha "SELINUX")
+        SELINUX=permissive
+        setenforce permissive
+    
+    # atualização
+        yum -y update
+        reboot
+        cat /etc/*-release
+        uname -r
+        cat /proc/version
+    
+    # Instalando o pacote epel
+        cd /tmp/orainstall
+        wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+        rpm -ivh epel-release-latest-7.noarch.rpm
+    
+    # pacote DBA
+        yum -y install procps screen rlwrap terminator
+        screen: abrir nova instancia do terminal
+        rlwrap: permite usar setas direcionais no sqlplus
+        procps: informações como o "top" e "htop"
+        terminator: multiplas abas no terminal
+        
+    # EFETUAR SNAPSHOT
+    
+    # Instalação de pacotes Oracle ($root)
+        wget http://yum.oracle.com/repo/OracleLinux/OL7/latest/x86_64/getPackage/oracleasm-support-2.1.11-2.el7.x86_64.rpm
+        rpm -ivh oracleasm-support-2.1.11-2.el7.x86_64.rpm
+        wget http://download.oracle.com/otn_software/asmlib/oracleasmlib-2.0.12-1.el7.x86_64.rpm
+        rpm -ivh oracleasmlib-2.0.12-1.el7.x86_64.rpm
+        yum install -y kmod-oracleasm
