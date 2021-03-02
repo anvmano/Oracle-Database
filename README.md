@@ -7,7 +7,7 @@
 Aqui você encontra arquivos/tutoriais sobre banco de dados Oracle.
 
 
-## Projetos:
+## Documento/tutoriais:
 Veja os tutoriais publicados:
 
 * **Uma nova instalação do Oracle Linux:** https://url.gratis/ruGhl
