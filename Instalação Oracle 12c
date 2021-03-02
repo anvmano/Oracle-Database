@@ -5,6 +5,10 @@ pre-install efetuado
     - caso nao tenha efetuado pre-install ($root)
         terminal
             yum -y install oracle-rdbms-server-12cR1-pre-install
+                - verificar id oracle
+                - alterar senha user oracle
+                    passwd oracle
+                        <insira a senha>            
     - caso pre-install falhe, realizar as configurações
         # alteração de valores em sysctl.conf
             vi /etc/sysctl.conf
