@@ -10,6 +10,7 @@ pre-install efetuado
                 - alterar senha user oracle
                     passwd oracle
                         <insira a senha>   
+                        
     - caso pre-install falhe, realizar as configurações
         # alteração de valores em sysctl.conf
             vi /etc/sysctl.conf ou /etc/sysctl.d/98-oracle.conf
@@ -27,8 +28,10 @@ pre-install efetuado
                 net.ipv4.conf.default.rp_filter = 2
                 fs.aio-max-nr = 1048576
                 net.ipv4.ip_local_port_range = 9000 65500
+                
         # execute o comando "/sbin/sysctl -p"
             /sbin/sysctl -p ou /sbin/sysctl -p /etc/sysctl.d/99-sysctl.conf
+            
         # add lines in "/etc/security/limits.d/oracle-database-pre-install-18c.conf"
             oracle soft nofile 1024
             oracle hard nofile 65536
@@ -99,6 +102,7 @@ pre-install efetuado
             #groupadd -g 54329 asmadmin
             #groupadd -g 54330 racdba
             useradd -u 54321 -g oinstall -G dba,oper oracle
+            
 # criação/permisoes das pastas ($root)
     mkdir -p /u01/app/oracle/product/18.3/dbhome_1
     chown -R oracle:oinstall /u01
@@ -109,17 +113,18 @@ pre-install efetuado
         #.bash_profile
         export TMP=/tmp
         export TMPDIR=$TMP
-        export ORACLE_HOSTNAME=base08.localdomain
-        export ORACLE_UNQNAME=ORCL8
+        export ORACLE_HOSTNAME=<SID>.localdomain
+        export ORACLE_UNQNAME=<SID>
         export ORACLE_BASE=/u01/app/oracle
         export ORACLE_HOME=$ORACLE_BASE/product/18.3/dbhome_1
         export ORA_INVENTORY=/u01/app/oraInventory
-        export ORACLE_SID=ORCL8
+        export ORACLE_SID=<SID>
         export ORACLE_TERM=xterm
         export PATH=/usr/sbin:$PATH
         export PATH=$ORACLE_HOME/bin:$PATH
         export LD_LIBRARY_PATH=$ORACLE_HOME/lib:/lib:/usr/lib
         export CLASSPATH=$ORACLE_HOME/jlib:$ORACLE_HOME/rdbms/jlib
+        
 # instalação de binarios ($oracle)
     - copiar compactado "oracle linux 18c" para a pasta "/u01/app/oracle/product/18.3/dbhome_1"
     - descompactar arquivo
@@ -161,8 +166,10 @@ pre-install efetuado
 # NETCA (listener)
     echo $ORACLE_HOME
         verificar se pasta e: /u01/app/oracle/product/18.3/dbhome_1
+        
     which netca
         /u01/app/oracle/product/18.3/dbhome_1/bin/netca
+        
     - netca
         Tela 1: Listener configuration
         Tela 2: Add
@@ -176,6 +183,7 @@ pre-install efetuado
             NETCA
             Tela 1: Naming Methods Configuration
             Tela 2: Local Naming
+            
 # carregar variaveis e iniciar instalação ($oracle)
     carregar variaveis
     - dbca
@@ -202,12 +210,14 @@ pre-install efetuado
             database files storage type: file system
             database files location: {ORACLE_BASE}/oradata/{DB_UNIQUE_NAME}
             use oracle-management files (OMF)
+            
         - fast recovery option
             [escolha] - especify fast recovery area
                 recovery files storage type: file system
                 fast recovery area: {ORACLE_BASE}/fast_recovery_area/{DB_UNIQUE_NAME}
                 fast recovery area size: (default)
                 enable archiving
+                
         - Network Configuration
             listener:
                 - caso ja tenha instalado NETCA, ou grid, aceite o listener proposto
@@ -218,6 +228,7 @@ pre-install efetuado
         
         - data vault option
             (tudo desmarcado)
+            
         - inicialization parameters
             memory:
                 [escolha] - Use automatic shared memory management
@@ -230,11 +241,14 @@ pre-install efetuado
                 [escolha] - dedicated server mode
             Sample schema
                 (marcar caso base de estudo)
+                
         - management options
             [marcar] - configure Enterprise manager database express
             port: (padrao: 5500)
+            
         - user credentials
             senha: (escolha)
+            
         - creation options
             [escolha] - create database
             [escolha] - generate database Script          
