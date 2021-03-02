@@ -1,0 +1,139 @@
+(#oracle)
+
+# upgrade
+
+executar comando no terminal  "$ORACLE_HOME/OPatch/opatch lsinventory -detail"
+- verificar as informações:
+    OPatch version
+    OUI version
+    Oracle Database 12c
+    "there are no interim installed in this Oracle Home."
+
+- patchs para download, somente oracle suport
+    https://support.oracle.com/
+    - verificar qual versao do banco para efetuar download do patch
+
+- verificar a existencia da pasta "Opatch"
+    cd $ORACLE_HOME
+    ls -altrd OPatch
+
+- caso exista Opatch
+    renomear (para backup)
+    mv OPatch OPatch.old
+
+- descompactar o arquivo Opatch
+    unzip -q <patch>
+
+- mover Opatch
+    mv <Opatch> $ORACLE_HOME
+
+- validar versao do Opatch
+    $ORACLE_HOME/OPatch/opatch lsinventory
+
+- validar atualização
+    $ORACLE_HOME/OPatch/opatch version
+    mensagem esperada "OPatch succeeded"
+
+- derrubar listener e instancia
+    lsnrctl stop
+    sqlplus / as sysdba
+        shutdown immediate;
+
+- descompactar o arquivo patch
+    unzip -q <patch>
+    mv <patch> /home/oracle
+
+- pre check
+    $ORACLE_HOME/OPatch/opatch prereq CheckConflictAgainstOHWithDetail -ph ./
+    mensagem esperada
+        "Prereq 'CheckConflictAgainstOHWithDetail' passed.
+        "Do you want to proceed? [Y/N]" y
+        "Is the local system ready for patching? [Y/N] y
+        make: [iextjob ] Error 1 (ignored)
+            https://updates.oracle.com/Orion/Services/download?type=readme&aru=20775452
+
+- validar versao do Opatch
+    $ORACLE_HOME/OPatch/opatch lsinventory
+
+- Configurações pós aplicação do PSU
+    - acessar a pasta OPatch
+        cd $ORACLE_HOME/OPatch
+    
+    - subir o banco em upgrade
+        sqlplus / as sysdba
+        startup upgrade
+        exit
+
+    - executar o comando
+        ./datapatch -verbose
+        mensagem esperada "bootstraping registry and package to current versions ... done
+    
+    - subir o banco normalmente
+        sqlplus / as sysdba
+        shutdown immediate
+        startup
+    
+    - verificar, validar, compilar e retirar objetos invalidos
+        @?/rdbms/admin/catbundle.sql psu apply
+        @?/rdbms/admin/utlrp.sql
+    
+    - verificar objetos invalidos
+        select count(*)
+        from dba_objects
+        where status='INVALID';
+
+    - script para verificar pacth
+        set pagesize 200
+        set linesize 400
+        column VERSION format a10
+        column ACTION_TIME format a30
+        column DESCRIPTION format a50
+        column BUNDLE_SERIES format a5
+        SELECT PATCH_ID, VERSION, ACTION, STATUS, ACTION_TIME,DESCRIPTION, BUNDLE_SERIES, BUNDLE_ID
+            FROM DBA_REGISTRY_SQLPATCH;
+
+# rollback (para aplicação de bundle patch, e necessario rollback)
+    - derrubar listener e instancia
+        lsnrctl stop
+        sqlplus / as sysdba
+        shutdown immediate;
+
+    - ID do Opatch
+        SELECT PATCH_ID FROM DBA_REGISTRY_SQLPATCH;
+
+    - validar versao do Opatch
+        $ORACLE_HOME/OPatch/opatch lsinventory
+        $ORACLE_HOME/OPatch/opatch rollback -id <PATCH_ID>
+        mensagem esperada
+            "Is the local system ready for patching? [Y/N] y
+    
+    - verificar rollback
+        $ORACLE_HOME/OPatch/opatch lsinventory
+        mensagem esperada
+            "there are no interim installed in this Oracle Home."
+    
+    - subir o banco em upgrade
+        sqlplus / as sysdba
+        startup upgrade
+        exit
+    
+    - executar o comando
+        ./datapatch -verbose
+        mensagem esperada 
+            "patch <patch> rollback: SUCCESS
+    
+    - script para verificar pacth
+        set pagesize 200
+        set linesize 400
+        column VERSION format a10
+        column ACTION_TIME format a30
+        column DESCRIPTION format a50
+        column BUNDLE_SERIES format a5
+        SELECT PATCH_ID, VERSION, ACTION, STATUS, ACTION_TIME,DESCRIPTION, BUNDLE_SERIES, BUNDLE_ID
+            FROM DBA_REGISTRY_SQLPATCH;
+
+    - subir o banco normalmente
+        lsnrctl startup
+        sqlplus / as sysdba
+        shutdown immediate
+        startup
