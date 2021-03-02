@@ -13,6 +13,7 @@ Veja os tutoriais publicados:
 * **Uma nova instalação do Oracle Linux:** https://url.gratis/ruGhl
 * **Instalação Oracle 12c:** https://url.gratis/vNOTW
 * **instalação Oracle 18c:** https://url.gratis/tRCdn
+* **Instalação Oracle 19c:** https://url.gratis/nqr9O
 * **Instalação Oracle Grid 12c:** https://url.gratis/tKcJs
 * **Monitorar SO:** https://url.gratis/ZIBFx
 * **Multiplexando control file:** https://url.gratis/t723o
