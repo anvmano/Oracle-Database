@@ -23,6 +23,7 @@ Veja os tutoriais publicados:
 * **Parametros do GLOGIN:** https://url.gratis/Y7Txn
 * **Comando sobre tablespace:** https://url.gratis/TNhHm
 * **User | Profile | Roles | Grants:** https://url.gratis/xW2wZ
+* **Upgrade-rollback de patch (12cr1):** https://url.gratis/j6AiT
 
 
 ---
