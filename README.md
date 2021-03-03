@@ -25,7 +25,7 @@ Veja os tutoriais publicados:
 * **User | Profile | Roles | Grants:** https://url.gratis/xW2wZ
 * **Upgrade-rollback de patch (12cr1):** https://url.gratis/j6AiT
 * **Aplicando o Bundle Patch Oracle 12cr1:** https://url.gratis/HbE6s
-
+* **Upgrade do oracle 12c para 19.3:** https://url.gratis/5SXyR
 
 ---
 
