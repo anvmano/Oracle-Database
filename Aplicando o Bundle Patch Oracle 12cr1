@@ -1,0 +1,133 @@
+Aplicando o Bundle Patch
+# aplicar BP
+    - derrubar a instancia e listener
+        lsnrctl stop
+        sqlplus / as sysdba
+            shutdowm immediate
+
+    - criar diretorio do BP
+        mkdir -p /home/oracle/bundlepatch
+        mv <bundle_patch_name>.zip /home/oracle/bundlepatch
+        cd /home/oracle/bundlepatch
+        unzip -q <bundle_patch_name>.zip
+
+    - Executar o seguinte comando para verificar se nenhum patch já instalado irá conflitar com o novo:
+
+    * Executar em 2 locais (Ler o Read Me)
+
+    - Local 1
+        cd $ORACLE_HOME/Opatch
+        ./opatch prereq CheckConflictAgainstOHWithDetail -phBaseDir /home/oracle/bundlepatch/<version>/<version>
+
+    - Local 2
+        cd $ORACLE_HOME/OPatch
+        ./opatch prereq CheckConflictAgainstOHWithDetail -phBaseDir /home/oracle/bundlepatch/<version>/<version>
+
+
+    - Verificação de espaço livre no ORACLE_HOME para aplicação dos patchs
+        criar arquivo "patch_list_dbhome"
+            touch /tmp/patch_list_dbhome.txt
+        
+        - editar arquivo criado
+            vi /tmp/patch_list_dbhome.txt
+            /home/oracle/bundlepatch/29698629/29509318
+            /home/oracle/bundlepatch/29698629/29496791
+        
+        -executar o comando:
+            $ORACLE_HOME/OPatch/opatch prereq CheckSystemSpace -phBaseFile /tmp/patch_list_dbhome.txt
+            mensagem esperada: "Prereq 'checkSystemSpace' passed
+                                Opatch succeeded.
+
+    - Caso não existe nenhum conflito, aplicar o patch
+        - acessar a pasta de BP
+            cd /home/oracle/bundlepatch/29698629/29496791
+        - executar o comando para aplicar BP
+            $ORACLE_HOME/OPatch/opatch apply
+            "Do you want to proceeed? [Y|N]" y
+            "Is the local system ready for patching? [Y|N]" y
+
+    - verificar patchs aplicados
+        $ORACLE_HOME/Opatch/opatch lsinventory
+
+    - subir instancia como upgrade
+        sqlplus / as sysdba
+            startup upgrade;
+            exit
+
+    - executar comando "verbose"
+        cd $ORACLE_HOME/OPatch
+            ./datapatch -verbose
+            mensagem esperada: "patch installation complete. Total patches installed: 1"
+
+    - verificar objetos invalidos 
+        sqlplus / as sysdba
+            select count(*) 
+                from dba_objetcts
+                where status='INVALID';
+            - caso tenha objetos invalidos, executar os script "catbundle.sql" e "utlrp.sql"
+                @?/rdbms/admin/catbundle.sql psu apply
+                @?/rdbms/admin/utlrp.sql
+            - caso nao tenho tenha objetos invalidos, derrubar instancia
+                shutdown immediate
+
+    - subir instancia em normalmente
+        lsnrctl startup
+        sqlplus / as sysdba
+            startup
+
+    - Query de verificação
+        set pagesize 200
+        set linesize 400
+        column VERSION format a10
+        column ACTION_TIME format a30
+        column DESCRIPTION format a50
+        column BUNDLE_SERIES format a5
+        SELECT PATCH_ID, VERSION, ACTION, STATUS, ACTION_TIME, DESCRIPTION, BUNDLE_SERIES, BUNDLE_ID
+            FROM DBA_REGISTRY_SQLPATCH;
+
+# rollback (para aplicação de bundle patch, e necessario rollback)
+    - derrubar listener e instancia
+        lsnrctl stop
+        sqlplus / as sysdba
+            shutdown immediate;
+
+    - ID do BP
+        SELECT PATCH_ID, VERSION, ACTION_TIME, BUNDLE_SERIES
+            FROM DBA_REGISTRY_SQLPATCH;
+
+    - validar versao do BP
+        $ORACLE_HOME/OPatch/opatch lsinventory
+        $ORACLE_HOME/OPatch/opatch rollback -id <PATCH_ID>
+        mensagem esperada
+            "Is the local system ready for patching? [Y/N] y
+    
+    - verificar rollback
+        $ORACLE_HOME/OPatch/opatch lsinventory
+        mensagem esperada
+            "there are no interim installed in this Oracle Home."
+    
+    - subir o banco em upgrade
+        sqlplus / as sysdba
+            startup upgrade
+            exit
+    
+    - executar o comando
+        ./datapatch -verbose
+        mensagem esperada 
+            "patch <patch> rollback: SUCCESS
+    
+    - script para verificar pacth
+        set pagesize 200
+        set linesize 400
+        column VERSION format a10
+        column ACTION_TIME format a30
+        column DESCRIPTION format a50
+        column BUNDLE_SERIES format a5
+        SELECT PATCH_ID, VERSION, ACTION, STATUS, ACTION_TIME,DESCRIPTION, BUNDLE_SERIES, BUNDLE_ID
+            FROM DBA_REGISTRY_SQLPATCH;
+
+    - subir o banco normalmente
+        lsnrctl startup
+        sqlplus / as sysdba
+            shutdown immediate
+            startup
