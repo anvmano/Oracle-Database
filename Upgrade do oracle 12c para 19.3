@@ -1,0 +1,146 @@
+## REALIZAR BACKUP DA INSTANCIA E TESTAR BACKUP ANTES DE REALIZAR PROCEDIMENTO##
+
+($root)
+    - Realizar pre-install do Oracle 19c
+        yum install -y oracle-database-preinstall 19c
+    
+    - atualizar o linux
+        yum -y update
+    
+    - criação e alteração do diretorio do Oracle 19c
+        mkdir -p /u01/app/oracle/product/19.0.0.0/dbhome_1/
+        chown -R oracle:oinstall /u01/app/oracle/product/19.0.0.0
+        chmod -R 775 /u01/app/oracle/product/19.0.0.0
+    
+    - descompactar arquivo Oracle 19c
+        - copiar arquivos
+            destino "/u01/app/oracle/product/19.0.0.0/dbhome_1/"
+
+        - descompactar arquivo
+            unzip -q LINUX.X64_193000_db_home-001.zip
+    
+    - instalar binarios
+        - acessar pasta
+            "/u01/app/oracle/product/19.0.0.0/dbhome_1/"
+        - executar
+            ./runinstaller
+            # instalar binarios
+                - configuration option
+                    set up sofware only
+                - database instalation option
+                    single instance (depende do seu caso)
+                - install type
+                    enterprise edition (para estudo, lembrar que tem licensa oracle!)
+                -instalation location
+                    Oacle base: /u01/app/oracle
+                - create inventory
+                    inventory directory: /u01/app/oraInventory
+                    oraInventory group name: oinstall
+                - operationg system groups
+                    OSDBA: dba
+                    OSOPER: oper
+                    OSBACKUPDBA: dba
+                    OSDGDBA: dba
+                    OSKMDBA: dba
+                    OSRACDBA: dba
+                - root script execution
+                    (preferencialmente desmarcado)
+                - prerequisite check
+                    se falha "physical memory": ignorar (somente em base de estudo)- YES
+                    outras falhas: corrigir
+                - summary
+                    install
+                - install product
+                    executar scripts (root)
+                        script: /u01/app/oracle/product/19..0.0.0/dbhome_1/root.sh
+                            "The file "oraenv" already exists in /usr/local/bin.  Overwrite it? (y/n)" enter
+                            "The file "coraenv" already exists in /usr/local/bin.  Overwrite it? (y/n)" enter
+                - finish
+    
+    - pre upgrade
+        - verificar variaveis de ambiente
+            echo $ORACLE_SID
+            echo $ORACLE_HOME
+            - caso esteja com instancia incorreta a fazer upgrade
+                export ORACLE_SID=<SID>
+                export ORACLE_HOME=/u01/app/oracle/product/12.1.0.2/db_1
+        - $ORACLE_HOME/jdk/bin/java -jar /u01/app/oracle/product/19.0.0.0/dbhome_1/rdbms/admin/preupgrade.jar
+            - mensagem esperada
+                ==================
+                PREUPGRADE SUMMARY
+                ==================
+                /u01/app/oracle/cfgtoollogs/ORCL3/preupgrade/preupgrade.log
+                /u01/app/oracle/cfgtoollogs/ORCL3/preupgrade/preupgrade_fixups.sql
+                /u01/app/oracle/cfgtoollogs/ORCL3/preupgrade/postupgrade_fixups.sql
+
+                Execute fixup scripts as indicated below:
+
+                Before upgrade:
+
+                Log into the database and execute the preupgrade fixups
+                @/u01/app/oracle/cfgtoollogs/ORCL3/preupgrade/preupgrade_fixups.sql
+
+                After the upgrade:
+
+                Log into the database and execute the postupgrade fixups
+                @/u01/app/oracle/cfgtoollogs/ORCL3/preupgrade/postupgrade_fixups.sql
+
+                Preupgrade complete: <data_local>
+
+                - efetuar correções listadas
+   
+    - export variaveis
+        export ORACLE_HOME=/u01/app/oracle/product/19.0.0.0/dbhome_1/
+        export PATH=${ORACLE_HOME}/bin:$PATH
+        cd $ORACLE_HOME/bin
+        ./dbua
+            - select database
+                escolha instancia a ser atualizada
+                username: sys
+                password: <password>
+            - prerequisite check
+                (correções necessarias, caso nao seja corrijido automaticamente. coluna fixable: AUTO)
+            - select upgrade options
+                (todas marcadas)
+            - select recovery options
+                use flashback and graranteed restore point (somente se archive log estiver ativo)
+                use RMAN backup (realizar backup offline) (escolha)
+                I have my own backup and restore strategy
+            - configuration network
+                selecione o listener utilizado (ou crie um novo)
+            - configuration management
+                desmarcar, caso ja tenha EM configurado
+            - summary
+                finish
+            - progress
+            - Results
+                close
+    
+    - post upgrade
+        acessar o banco
+            sqlplus / as sysdba
+            - executar o script pos upgrade
+                @/u01/app/oracle/cfgtoollogs/ORCL3/preupgrade/postupgrade_fixups.sql
+
+            - caso depencia de tabela nao seja resolvida, select e script
+                COLUMN owner FORMAT A30
+                COLUMN table_name FORMAT A30
+                SELECT DISTINCT owner, table_name,
+                    FROM dba_tab_cols
+                    WHERE data_upgraded = 'ORDER BY 1,2';
+
+                $ORACLE_HOME/rdbms/admin/utluptabdata.sql
+
+            - verificar objetos invalidos
+                select count(*) from dba_objects where status='INVALID';
+                @?/rdbms/admin/utlrp.sql
+
+            - verificar backup realizado
+                cd /u01/app/oracle/admin/ORCL1/<backup_date>
+                ls -l
+
+            - verificar oratab
+                cat /etc/oratab
+
+Boas praticas apos upgrade:
+    https://docs.oracle.com/en/database/oracle/oracle-database/19/upgrd/recommended-and-best-practices-complete-upgrading-oracle-database.html#GUID-5196CE88-8669-45D6-8906-C45272940740
