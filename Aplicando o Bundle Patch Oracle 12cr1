@@ -85,6 +85,11 @@ Aplicando o Bundle Patch
         SELECT PATCH_ID, VERSION, ACTION, STATUS, ACTION_TIME, DESCRIPTION, BUNDLE_SERIES, BUNDLE_ID
             FROM DBA_REGISTRY_SQLPATCH;
 
+    PS: caso utilizar RMAN para backup sem backup no ZDLRA (Oracle Zero Data Loss Recovery Appliance), catalogo precisa ser atualizado
+        - acessar RMAN
+            rman catlog <user>/<password>@alias
+                upgrade catalog;
+
 # rollback (para aplicação de bundle patch, e necessario rollback)
     - derrubar listener e instancia
         lsnrctl stop
