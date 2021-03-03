@@ -24,6 +24,7 @@ Veja os tutoriais publicados:
 * **Comando sobre tablespace:** https://url.gratis/TNhHm
 * **User | Profile | Roles | Grants:** https://url.gratis/xW2wZ
 * **Upgrade-rollback de patch (12cr1):** https://url.gratis/j6AiT
+* **Aplicando o Bundle Patch Oracle 12cr1:** https://url.gratis/HbE6s
 
 
 ---
