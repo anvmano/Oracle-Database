@@ -11,7 +11,8 @@
         mkdir -p /u01/app/oracle/product/19.0.0.0/dbhome_1/
         chown -R oracle:oinstall /u01/app/oracle/product/19.0.0.0
         chmod -R 775 /u01/app/oracle/product/19.0.0.0
-    
+
+(#oracle)    
     - descompactar arquivo Oracle 19c
         - copiar arquivos
             destino "/u01/app/oracle/product/19.0.0.0/dbhome_1/"
@@ -142,5 +143,5 @@
             - verificar oratab
                 cat /etc/oratab
 
-Boas praticas apos upgrade:
+Boas praticas após upgrade:
     https://docs.oracle.com/en/database/oracle/oracle-database/19/upgrd/recommended-and-best-practices-complete-upgrading-oracle-database.html#GUID-5196CE88-8669-45D6-8906-C45272940740
