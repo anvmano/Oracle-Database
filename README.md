@@ -23,7 +23,7 @@ Veja os tutoriais publicados:
 * **Atualização Apex:** https://url.gratis/Q2fhj
 * **Upgrade do oracle 12c para 19.3:** https://url.gratis/5SXyR
 * **Aplicando o Bundle Patch Oracle 12cr1:** https://url.gratis/HbE6s
-* * **Upgrade-rollback de patch (12cr1):** https://url.gratis/j6AiT
+* **Upgrade-rollback de patch (12cr1):** https://url.gratis/j6AiT
 
 
 
