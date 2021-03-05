@@ -1,0 +1,57 @@
+Apex upgrade
+- efetuar download da versao Apex
+    https://www.oracle.com/tools/downloads/apex-v191-downloads.html
+
+- copiar e descompactar
+    copiar para a pasta "/home/oracle"
+
+    - descompactar/acessar pasta
+        unzip -q apex_19.2_en.zip
+        cd /home/oracle/apex
+
+    - acessar o banco
+        sqlplus / as sysdba
+
+- atualização Apex
+    - verificar versao do apex
+        select version from dba_registry where comp_id ='APEX';
+    - atualizar
+        sqlplus / as sysdba
+            @apexins.sql SYSAUX SYSAUX TEMP /i/
+                explicação:
+                    @apexins.sql: script sql para atualização
+                    SYSAUX SYSAUX TEMP: tablespace utilizada pelo apex
+                    /i/: imagem
+
+    - verificar versao do apex
+        select version from dba_registry where comp_id ='APEX';
+
+    - verificar objetos invalidos
+        select count(*) from dba_objects where status='INVALID';
+    
+        set pagesize 200
+        set linesize 400
+        column owner format a15
+        column object_name format a40
+        column object_type format a15
+        column status format a10
+        SELECT owner, object_name, object_type, status
+            from dba_objects
+                where status='INVALID';
+    
+PS: os objetos invalidos apresentados, sao devido a schema nao mais utilizado pelo apex apos atualização
+    conforme apresentado pela Oracle
+        
+        APEX_040200 schema was dropped according to the instructions in the APEX 5.0
+            Installation Guide > Removing Schemas from Prior Installations
+        https://docs.oracle.com/cd/E59726_01/install.50/e39144/listener.htm#HTMIG838
+        Invalid Synonyms for APEX_040200 After 5.0 Upgrade ( Doc ID 2047470.1)
+        Applies to : Oracle Application Express (APEX) Version 5.0 and later
+        https://docs.oracle.com/en/database/oracle/application--express/19.1/htmig/postexpress/19.1/htmig/post--installationinstallation--taskstasks--forfor--upgradeupgrade--installations.html#GUIDinstallations.html#GUID--200286C8200286C8--03C903C9--42E742E7--A82BA82B--F52CCA443E01F52CCA443E01
+
+    - removendo schema
+        DROP USER APEX_040200 CASCADE;
+
+        - verificar objetos invalidos
+            select count(*) from dba_objects where status='INVALID';
+            @?/rdbms/admin/utlrp.sql
