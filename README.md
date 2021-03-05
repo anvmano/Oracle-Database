@@ -11,22 +11,39 @@ Aqui você encontra arquivos/tutoriais sobre banco de dados Oracle.
 ## Documento/tutoriais:
 Veja os tutoriais publicados:
 
-* **Uma nova instalação do Oracle Linux:** https://url.gratis/ruGhl
+### Sistema operacional
+* **Instalação do Oracle Linux:** https://url.gratis/ruGhl
+
+### Instalação/upgrade:
+
 * **Instalação Oracle 12c:** https://url.gratis/vNOTW
 * **instalação Oracle 18c:** https://url.gratis/tRCdn
 * **Instalação Oracle 19c:** https://url.gratis/nqr9O
 * **Instalação Oracle Grid 12c:** https://url.gratis/tKcJs
+* **Atualização Apex:** https://url.gratis/Q2fhj
+* **Upgrade do oracle 12c para 19.3:** https://url.gratis/5SXyR
+* **Aplicando o Bundle Patch Oracle 12cr1:** https://url.gratis/HbE6s
+* * **Upgrade-rollback de patch (12cr1):** https://url.gratis/j6AiT
+
+
+
+### Scripts:
+
 * **Monitorar SO:** https://url.gratis/ZIBFx
+* **Firewall no linux:** https://url.gratis/A3RyV
+* **Script para startup automatico:** https://url.gratis/tP3h2
+
+### SQL:
 * **Multiplexando control file:** https://url.gratis/t723o
 * **Aumentar swap e partições:** https://url.gratis/bHLPf
-* **Firewall no linux:** https://url.gratis/A3RyV
-* **Scrip para startup automatico:** https://url.gratis/tP3h2
 * **Parametros do GLOGIN:** https://url.gratis/Y7Txn
-* **Comando sobre tablespace:** https://url.gratis/TNhHm
 * **User | Profile | Roles | Grants:** https://url.gratis/xW2wZ
-* **Upgrade-rollback de patch (12cr1):** https://url.gratis/j6AiT
-* **Aplicando o Bundle Patch Oracle 12cr1:** https://url.gratis/HbE6s
-* **Upgrade do oracle 12c para 19.3:** https://url.gratis/5SXyR
+* **Comando sobre tablespace:** https://url.gratis/TNhHm
+
+
+
+
+
 
 ---
 
