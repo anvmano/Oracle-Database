@@ -76,13 +76,14 @@ pre-install efetuado
             groupadd -g 54321 oinstall
             groupadd -g 54322 dba
             useradd -g oinstall -G dba oracle
-        # criar grupo "oper"
-            $root
-            id oracle
-            groupadd oper
-            usermod -g oinstall -G dba,oper oracle
-            passwd oracle
-            id oracle
+# criar grupo "oper"
+    $root
+    id oracle
+    groupadd oper
+    usermod -g oinstall -G dba,oper oracle
+    passwd oracle
+    id oracle
+    
 # criação/permisoes das pastas ($root)
     mkdir -p /u01/app/oracle/product/12.1.0.2/grid
     mkdir -p /u01/app/oracle/product/12.1.0.2/db_1
@@ -93,12 +94,12 @@ pre-install efetuado
         #.bash_profile
         export TMP=/tmp
         export TMPDIR=$TMP
-        export ORACLE_HOSTNAME=<SID>.localdomain
+        export ORACLE_HOSTNAME=<hostname>.localdomain
         export ORACLE_UNQNAME=<SID>
         export ORACLE_BASE=/u01/app/oracle
         export ORACLE_HOME=$ORACLE_BASE/product/12.1.0.2/db_1
         export GRID_HOME=$ORACLE_BASE/product/12.1.0.2/grid
-        export ORACLE_SID=(SID)
+        export ORACLE_SID=<SID>
         export ORACLE_TERM=xterm
         export PATH=/usr/sbin:$PATH
         export PATH=$ORACLE_HOME/bin:$PATH
