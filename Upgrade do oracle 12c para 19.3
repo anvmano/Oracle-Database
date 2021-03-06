@@ -2,7 +2,7 @@
 
 ($root)
     - Realizar pre-install do Oracle 19c
-        yum install -y oracle-database-preinstall 19c
+        yum install -y oracle-database-preinstall-19c
     
     - atualizar o linux
         yum -y update
@@ -12,7 +12,7 @@
         chown -R oracle:oinstall /u01/app/oracle/product/19.0.0.0
         chmod -R 775 /u01/app/oracle/product/19.0.0.0
 
-(#oracle)    
+ (#oracle)    
     - descompactar arquivo Oracle 19c
         - copiar arquivos
             destino "/u01/app/oracle/product/19.0.0.0/dbhome_1/"
@@ -70,21 +70,21 @@
                 ==================
                 PREUPGRADE SUMMARY
                 ==================
-                /u01/app/oracle/cfgtoollogs/ORCL3/preupgrade/preupgrade.log
-                /u01/app/oracle/cfgtoollogs/ORCL3/preupgrade/preupgrade_fixups.sql
-                /u01/app/oracle/cfgtoollogs/ORCL3/preupgrade/postupgrade_fixups.sql
+                /u01/app/oracle/cfgtoollogs/<SID>/preupgrade/preupgrade.log
+                /u01/app/oracle/cfgtoollogs/<SID>/preupgrade/preupgrade_fixups.sql
+                /u01/app/oracle/cfgtoollogs/<SID>/preupgrade/postupgrade_fixups.sql
 
                 Execute fixup scripts as indicated below:
 
                 Before upgrade:
 
                 Log into the database and execute the preupgrade fixups
-                @/u01/app/oracle/cfgtoollogs/ORCL3/preupgrade/preupgrade_fixups.sql
+                @/u01/app/oracle/cfgtoollogs/teina/preupgrade/preupgrade_fixups.sql
 
                 After the upgrade:
 
                 Log into the database and execute the postupgrade fixups
-                @/u01/app/oracle/cfgtoollogs/ORCL3/preupgrade/postupgrade_fixups.sql
+                @/u01/app/oracle/cfgtoollogs/<SID>/preupgrade/postupgrade_fixups.sql
 
                 Preupgrade complete: <data_local>
 
@@ -118,12 +118,21 @@
                 close
     
     - post upgrade
+        - fazer alteração do "bash_profile"
+            alterar local as linhas:
+                export ORACLE_HOME=$ORACLE_BASE/product/19.0.0.0/dbhome_1/
+                export GRID_HOME=$ORACLE_BASE/product/19.0.0.0/dbhome_1/
+
+        - fazer alteração no "db_env"
+            alterar local as linhas:
+                export ORACLE_HOME=$ORACLE_BASE/product/19.0.0.0/dbhome_1/      
+
         acessar o banco
             sqlplus / as sysdba
             - executar o script pos upgrade
                 @/u01/app/oracle/cfgtoollogs/ORCL3/preupgrade/postupgrade_fixups.sql
 
-            - caso depencia de tabela nao seja resolvida, select e script
+            - caso depencia de tabela nao seja resolvida, executar os comandos
                 COLUMN owner FORMAT A30
                 COLUMN table_name FORMAT A30
                 SELECT DISTINCT owner, table_name,
@@ -143,5 +152,5 @@
             - verificar oratab
                 cat /etc/oratab
 
-Boas praticas após upgrade:
+Boas praticas apos upgrade:
     https://docs.oracle.com/en/database/oracle/oracle-database/19/upgrd/recommended-and-best-practices-complete-upgrading-oracle-database.html#GUID-5196CE88-8669-45D6-8906-C45272940740
