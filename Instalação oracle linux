@@ -18,7 +18,7 @@
             sda1 1024 MB /boot (Standard Partition)
             sda2 100000 MB / (LVM - Logic Volume Manager)
             sda3 20000 MB /home (LVM)
-            sda5 4096 MB swap (LVM)
+            sda5 4096 MB swap (LVM) (igual a Memoria RAM)
             sda6 10000 MB /var (LVM)
             sda7 10000 MB /tmp (LVM)
             sda8 Espaço restante /u01 (LVM - Maior espaço)
