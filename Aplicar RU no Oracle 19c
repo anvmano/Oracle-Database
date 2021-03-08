@@ -88,7 +88,7 @@
             exit
             
         - rodar datapatch
-            cd $ORACLE_HOME/ OPatch
+            cd $ORACLE_HOME/OPatch
             ./datapatch -verbose
     
     - subir o banco normalmente
@@ -113,6 +113,7 @@
         column DESCRIPTION format a50
         SELECT PATCH_ID, ACTION, STATUS, ACTION_TIME, DESCRIPTION
             FROM DBA_REGISTRY_SQLPATCH;
+            
         set pagesize 200
         set linesize 400
         column COMMENTS format a80
