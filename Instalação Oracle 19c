@@ -189,8 +189,10 @@ pre-install efetuado
 # NETCA (listener)
     echo $ORACLE_HOME
         verificar se pasta e: /u01/app/oracle/product/19.3/dbhome_1
+
     which netca
         /u01/app/oracle/product/19.3/dbhome_1/bin/netca
+
     - netca
         Tela 1: Listener configuration
         Tela 2: Add
@@ -200,6 +202,7 @@ pre-install efetuado
             se erro "configuration assistant use another port number"
                 verificar o IP utilizado, e arquivo "/etc/hosts"
         Tela 6: no
+
         - Configuração de Rede (NETCA)
             NETCA
             Tela 1: Naming Methods Configuration
@@ -210,11 +213,14 @@ pre-install efetuado
     - dbca
         - database operation
             create database
+            
         - creation mode
             advanced mode
+
         - deployment type
             Oralce single instance
             general purpose
+
         - database identification    
             Global database Name: <SID>.(dominio) (ex.:ORCL1.localdomain)
             SID: <SID>
@@ -225,17 +231,20 @@ pre-install efetuado
                 [marcar] - create a container database whit one or more PDBs
                 (escolher quantos PDBs)
                 PDB name prefix: (name)
+
         - storage option
             [escolha] - use following for the database storage attributes
                 database files storage type: file system
                 database files location: {ORACLE_BASE}/oradata/{DB_UNIQUE_NAME}
             [marcar] - use oracle-management files (OMF)
+
         - fast recovery option
             [marcar] - especify fast recovery area
                 recovery files storage type: file system
                 fast recovery area: {ORACLE_BASE}/fast_recovery_area/{DB_UNIQUE_NAME}
                 fast recovery area size: (default)
             [marcar] - enable archiving
+
         - Network Configuration
             listener:
                 - caso ja tenha instalado NETCA, ou grid, aceite o listener proposto
@@ -243,8 +252,10 @@ pre-install efetuado
                                 listener name: (escolha) (ex: LISTENER)
                                 listener port: (padrao - 1521)
                                 [verificar caminho target oracle home: "/u01/app/oracle/product/12.1.0.2/db_01"]
+        
         - data vault option
             (tudo desmarcado)
+
         - configuration option
             memory:
                 [escolha] - Use automatic shared memory management - (base de teste com 4GB de memoria)
@@ -257,17 +268,23 @@ pre-install efetuado
                 [escolha] - dedicated server mode
             Sample schema
                 (marcar caso base de estudo)
+
         - management options
             [marcar] - configure Enterprise manager database express
             port: (padrao: 5500) - (mude a porta caso necessario)
+
         - user credentials
             senha: (escolha)
+
         - creation options
             [escolha] - create database
-            [escolha] - generate database Script          
+            [escolha] - generate database Script     
+
         - summary:
             finish
+
         - progress page
+
         - finish
             salvar EM (https://xxx.xxx.xxx.xxx.localdomain:<port>/em)
             close
