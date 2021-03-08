@@ -52,6 +52,23 @@
         
     - aplicar RU
         opatch apply
+            - caso erro "Prerequisite check "CheckActiveFilesAndExecutables" failed"
+            - executar os comandos
+                /sbin/fuser /u01/app/oracle/product/19.0.0/dbhome_1/lib/libclntsh.so.19.1
+                    mensagem esperada
+                        /sbin/fuser /u01/app/oracle/product/19.0.0/dbhome_1/lib/libclntsh.so.19.1: <xxxx>
+
+                /sbin/fuser /u01/app/oracle/product/19.0.0/dbhome_1/lib/libsqlplus.so
+                    mensagem esperada
+                        /sbin/fuser /u01/app/oracle/product/19.0.0/dbhome_1/lib/libsqlplus.so: <xxxx>
+                
+                - verificar processo existente e encerrar
+                    ps -ef | grep <xxxx>
+                    kill -9 <xxxx>
+                
+                - efetuar roll back novamente
+                    $ORACLE_HOME/OPatch/opatch rollback -id 30125133
+                    
         Do you want to proceed? [y/n] Y
         Is the local system ready for patching? [y/n] Y
         ## processo de instação se inicia ##
