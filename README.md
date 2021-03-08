@@ -27,13 +27,15 @@ Veja os tutoriais publicados:
 * **Release Upgrade Oracle 19.3:** https://url.gratis/yJIec
 * **Release Upgrade Rollback Oracle 19.5:** https://url.gratis/8q6lu
 
-
+---
 
 ### Scripts:
 
 * **Monitorar SO:** https://url.gratis/ZIBFx
 * **Firewall no linux:** https://url.gratis/A3RyV
 * **Script para startup automatico:** https://url.gratis/tP3h2
+
+---
 
 ### SQL:
 * **Multiplexando control file:** https://url.gratis/t723o
