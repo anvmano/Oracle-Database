@@ -25,6 +25,7 @@ Veja os tutoriais publicados:
 * **Aplicando o Bundle Patch Oracle 12cr1:** https://url.gratis/HbE6s
 * **Upgrade-rollback de patch (12cr1):** https://url.gratis/j6AiT
 * **Release Upgrade Oracle 19.3:** https://url.gratis/yJIec
+* **Release Upgrade Rollback Oracle 19.5:** https://url.gratis/8q6lu
 
 
 
