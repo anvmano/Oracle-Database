@@ -25,25 +25,31 @@
         
 - copiar/descompactar RU
     - copiar arquivo de RU para a pasta "/home/oracle"
+    
     - descompactar a RU
         unzip -q DATABASE_RELEASE_UPDATE_19.5.0.0.0.zip
+        
     - checar conflito de RU
         - rodar variaveis
             export PATH=$ORACLE_HOME/bin:$ORACLE_HOME/OPatch:$PATH
         - acessar pasta
             cd 30125133/
         - checar conflito
-            opatch prereq CheckConflictAgainstOHWithDetail ph
+            opatch prereq CheckConflictAgainstOHWithDetail -ph ./
             mensagem esperada:
                 prereq "CheckConflictAgainstOHWithDetail" passed.
+                
 - processo de atualização
     - para listener
         lsnrctl stop
+        
     - derrubar o banco
         sqlplus / as sysdba
         shutdowm immediate
+        
     - acessar a pasta da RU
         cd /home/oracle/30125133
+        
     - aplicar RU
         opatch apply
         Do you want to proceed? [y/n] Y
@@ -51,15 +57,19 @@
         ## processo de instação se inicia ##
         mensagem esperada
             "Patch 30125133 successfully applied."
+            
     - verificar RU aplicada
         opatch lspatches
         opatch lsinventory
+        
     - rodar datapatch
         - acessar o banco
             sqlplus / as sysdba
+            
         - iniciar o banco em modo upgrade
             startup upgrade
             exit
+            
         - rodar datapatch
             cd $ORACLE_HOME/ OPatch
             ./datapatch -verbose
@@ -98,6 +108,7 @@
 - caso esteja utilizando catalogo do RMAN
     - acessar RMAN
         rman catalog <username>/<passwor>d@<alias>
+        
     - atualizar catalogo (executar 2x)
         upgrade catalog
         upgrade catalog
