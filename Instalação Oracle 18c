@@ -204,11 +204,14 @@ pre-install efetuado
     - dbca
         - database operation
             create database
+            
         - creation mode
             advanced mode
+            
         - database type
             Oralce single instance
             general purpose
+            
         - database identification    
             Global database Name: <SID>.(dominio) (ex.:ORCL1.localdomain)
             SID: <SID>
