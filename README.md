@@ -17,7 +17,7 @@ Veja os tutoriais publicados:
 ### Instalação/upgrade:
 
 * **Instalação Oracle 12c:** https://url.gratis/vNOTW
-* **instalação Oracle 18c:** https://url.gratis/tRCdn
+* **Instalação Oracle 18c:** https://url.gratis/tRCdn
 * **Instalação Oracle 19c:** https://url.gratis/nqr9O
 * **Instalação Oracle Grid 12c:** https://url.gratis/tKcJs
 * **Atualização Apex:** https://url.gratis/Q2fhj
