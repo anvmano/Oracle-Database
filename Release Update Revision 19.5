@@ -1,0 +1,129 @@
+- efetuar download da RU
+    https://support.oracle.com/portal/
+    
+    - patch information
+        Oracle Database 19c Proactive Patch Information (Doc ID 2521164.1)
+            Version : Database Release Update Revision 19.5.[1]
+            Patch: 30446054
+            Release Date: 14 Jan 2020
+            You must use the OPatch utility version 12.2.0.1.17 or later to apply this patch.
+    
+- verificar patch instalado
+    $ORACLE_HOME/OPatch/opatch lsinventory -detail
+        - linha
+            Patch description: "Database Release Update 19.5.0.0.191015 (30446054)"
+            ## caso diferente, necessario efetuar rollbackup para essa versao ##
+    $ORACLE_HOME/OPatch/opatch lsinventory
+
+- verificar versao do Opatch
+    $ORACLE_HOME/Opatch/opatch version
+        mensagem esperada
+            OPatch version:  12.2.0.1.17
+
+- copiar/descompactar RU
+    - copiar arquivo de RU para a pasta "/home/oracle"
+
+    - descompactar a RU
+        unzip -q DATABASE_RELEASE_UPDATE_REVISION_19.5.1.0.0.zip
+        - caso mensagem "replace patchsearch.xml? [Y]ES, [N]O, [A]LL, [N]ONE, [R]ENAME:" Y
+
+    - checar conflito de RU
+        - rodar variaveis
+            export PATH=$ORACLE_HOME/bin:$ORACLE_HOME/OPatch:$PATH
+        - acessar pasta
+            cd 30446054/
+        - checar conflito
+            opatch prereq CheckConflictAgainstOHWithDetail -ph ./
+            mensagem esperada:
+                prereq "CheckConflictAgainstOHWithDetail" passed.
+                
+- processo de atualização
+    - para listener
+        lsnrctl stop
+
+    - derrubar o banco
+        sqlplus / as sysdba
+        shutdowm immediate
+
+    - acessar a pasta da RU
+        cd /home/oracle/30446054
+
+    - aplicar RU
+        opatch apply
+            - caso erro "Prerequisite check "CheckActiveFilesAndExecutables" failed"
+
+            - executar os comandos
+                /sbin/fuser /u01/app/oracle/product/19.0.0/dbhome_1/lib/libclntsh.so.19.1
+                    mensagem esperada
+                        /sbin/fuser /u01/app/oracle/product/19.0.0/dbhome_1/lib/libclntsh.so.19.1: <xxxx>
+
+                /sbin/fuser /u01/app/oracle/product/19.0.0/dbhome_1/lib/libsqlplus.so
+                    mensagem esperada
+                        /sbin/fuser /u01/app/oracle/product/19.0.0/dbhome_1/lib/libsqlplus.so: <xxxx>
+                
+                - verificar processo existente e encerrar
+                    ps -ef | grep <xxxx>
+                    kill -9 <xxxx>
+                
+                - efetuar roll back novamente
+                    $ORACLE_HOME/OPatch/opatch rollback -id 30446054
+
+        Do you want to proceed? [y/n] Y
+        Is the local system ready for patching? [y/n] Y
+        ## processo de instação se inicia ##
+        mensagem esperada
+            "Patch 30446054 successfully applied."
+
+    - verificar RU aplicada
+        opatch lspatches
+        opatch lsinventory
+
+    - rodar datapatch
+        - acessar o banco
+            sqlplus / as sysdba
+        - iniciar o banco em modo upgrade
+            startup upgrade
+            exit
+        - rodar datapatch
+            cd $ORACLE_HOME/OPatch
+            ./datapatch -verbose
+    
+    - subir o banco normalmente
+        - acessar o banco
+            sqlplus / as sysdba
+            shutdown immediate
+            startup
+    
+        - verificar objetos invalidos
+            select count(*) from dba_objects where status='INVALID';
+                - caso tenha objetos invalidos
+                    @?/rdbms/admin/utlrp.sql
+                - caso nao tenha objetos invalidos
+                    exit
+
+- verificar RU aplicada
+    - acessar o banco
+        sqlplus / as sysdba
+        set pagesize 200
+        set linesize 400
+        column ACTION_TIME format a30
+        column DESCRIPTION format a50
+        SELECT PATCH_ID, ACTION, STATUS, ACTION_TIME, DESCRIPTION
+            FROM DBA_REGISTRY_SQLPATCH;
+            
+        set pagesize 200
+        set linesize 400
+        column COMMENTS format a80
+        column VERSION format a20
+        column BUNDLE_SERIES format a30
+        SELECT COMMENTS, VERSION, BUNDLE_SERIES
+            FROM SYS.REGISTRY$HISTORY;
+        SELECT BANNER_FULL FROM V$VERSION;
+
+- caso esteja utilizando catalogo do RMAN
+    - acessar RMAN
+        rman catalog <username>/<passwor>d@<alias>
+
+    - atualizar catalogo (executar 2x)
+        upgrade catalog
+        upgrade catalog
