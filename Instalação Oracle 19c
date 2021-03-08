@@ -11,6 +11,7 @@ pre-install efetuado
             - alterar senha user oracle
                 passwd oracle
                     <insira a senha>
+                    
     - caso pre-install falhe, realizar as configurações
     
         # alteração de valores em sysctl.conf
