@@ -113,7 +113,7 @@ pre-install efetuado
         #.bash_profile
         export TMP=/tmp
         export TMPDIR=$TMP
-        export ORACLE_HOSTNAME=<SID>.localdomain
+        export ORACLE_HOSTNAME=<host>.localdomain
         export ORACLE_UNQNAME=<SID>
         export ORACLE_BASE=/u01/app/oracle
         export ORACLE_HOME=$ORACLE_BASE/product/18.3/dbhome_1
@@ -124,6 +124,19 @@ pre-install efetuado
         export PATH=$ORACLE_HOME/bin:$PATH
         export LD_LIBRARY_PATH=$ORACLE_HOME/lib:/lib:/usr/lib
         export CLASSPATH=$ORACLE_HOME/jlib:$ORACLE_HOME/rdbms/jlib
+
+# Configuração do db_env. ($root)
+    vi /home/oracle/db_env
+        #.db_env
+        export ORACLE_SID=(SID)
+        export ORACLE_HOME=$ORACLE_BASE/product/18.3/dbhome_1
+        export PATH=$ORACLE_HOME/bin:$PATH
+        export LD_LIBRARY_PATH=$ORACLE_HOME/lib:/lib:/usr/lib
+        export CLASSPATH=$ORACLE_HOME/jlib:$ORACLE_HOME/rdbms/jlib
+
+# permissoes db_env
+    chown -R oracle:oinstall /home/oracle/db_env
+    chmod -R 775 /home/oracle/db_env
         
 # instalação de binarios ($oracle)
     - copiar compactado "oracle linux 18c" para a pasta "/u01/app/oracle/product/18.3/dbhome_1"
