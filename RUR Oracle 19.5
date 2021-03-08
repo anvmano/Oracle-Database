@@ -1,0 +1,90 @@
+- Efetuar Rollback de RU
+    - pegar ID do patch
+        - acessar o banco
+            sqlplus / as sysdba
+
+            set pagesize 200
+            set linesize 400
+            column ACTION_TIME format a30
+            column DESCRIPTION format a50
+            SELECT PATCH_ID, DESCRIPTION
+                FROM DBA_REGISTRY_SQLPATCH;
+    - para listener
+        lsnrctl stop
+    
+    - parar o banco
+        - acessar o banco
+            sqlplus / as sysdba
+            shutdowm immediate
+            exit
+    
+    - efetuar Rollback
+        $ORACLE_HOME/OPatch/opatch rollback -id 30125133
+        
+        - caso erro "Prerequisite check "CheckActiveFilesAndExecutables" failed"
+            - executar os comandos
+                /sbin/fuser /u01/app/oracle/product/19.0.0/dbhome_1/lib/libclntsh.so.19.1
+                    mensagem esperada
+                        /sbin/fuser /u01/app/oracle/product/19.0.0/dbhome_1/lib/libclntsh.so.19.1: <xxxx>
+
+                /sbin/fuser /u01/app/oracle/product/19.0.0/dbhome_1/lib/libsqlplus.so
+                    mensagem esperada
+                        /sbin/fuser /u01/app/oracle/product/19.0.0/dbhome_1/lib/libsqlplus.so: <xxxx>
+                
+                - verificar processo existente e encerrar
+                    ps -ef | grep <xxxx>
+                    kill -9 <xxxx>
+                
+                - efetuar roll back novamente
+                    $ORACLE_HOME/OPatch/opatch rollback -id 30125133
+
+        mensagem esperada
+            is the local system ready for patching? [y/n] y
+            ## processo de rollback inicia ##
+            RollbackSession removing interim patch '<PATCH_ID>' from inventory.
+            Opatch succeeded.
+
+    - rodar datapatch
+        - acessar o banco
+            sqlplus / as sysdba
+        
+        - subir o banco em modo upgrade
+            startup upgrade
+            exit
+        
+        - acessar a pasta
+            cd $ORACLE_HOME/Opatch
+        
+        - rodar datapatch
+            ./datapatch -verbose
+
+    - verificar rollback da RU
+        - acessar o banco
+            sqlplus / as sysdba
+
+            set pagesize 200
+            set linesize 400
+            column ACTION_TIME format a30
+            column DESCRIPTION format a50
+            SELECT PATCH_ID, DESCRIPTION
+                FROM DBA_REGISTRY_SQLPATCH;
+
+            - subir o banco
+                shutdown immediate
+                startup
+            
+            - verificar objetos invalidos
+                select count(*) from dba_objects where status='INVALID';
+                
+                - caso tenha objetos invalidos
+                    @?/rdbms/admin/utlrp.sql
+                
+                - caso nao tenha objetos invalidos
+                    exit
+    
+    - atualizar catalogo do RMAN
+        - acessar o RMAN
+            rman catalog <username>/<password>@<alias>
+        - atualizar catalogo (executar 2x)
+            upgrade catalog
+            upgrade catalog
