@@ -4,14 +4,16 @@ firewall Configurado
 pre-install efetuado
     - caso nao tenha efetuado pre-install ($root)
         terminal
-            yum -y install oracle-database-pre-install-18c
-                - verificar id oracle
-                    id oracle: uid=54321(oracle) gid=54321(oinstall) groups=54321(oinstall),54322(dba),54323(oper),54324(backupdba),54325(dgdba),54326(kmdba),54330(racdba)
-                - alterar senha user oracle
-                    passwd oracle
-                        <insira a senha>   
+            - install pre-install
+                yum -y install oracle-database-pre-install-18c
+            - verificar id oracle
+                id oracle: uid=54321(oracle) gid=54321(oinstall) groups=54321(oinstall),54322(dba),54323(oper),54324(backupdba),54325(dgdba),54326(kmdba),54330(racdba)
+            - alterar senha user oracle
+                passwd oracle
+                    <insira a senha>   
                         
     - caso pre-install falhe, realizar as configurações
+    
         # alteração de valores em sysctl.conf
             vi /etc/sysctl.conf ou /etc/sysctl.d/98-oracle.conf
                 fs.file-max = 6815744
