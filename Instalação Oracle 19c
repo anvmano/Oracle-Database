@@ -152,7 +152,7 @@ pre-install efetuado
     - descompactar arquivo
         unzip -q LINUX.X64_190000_db_home.zip
     - executar
-        ./runinstaller
+        ./runInstaller
         # instalar binarios
             - configuration option
                 set up sofware only
