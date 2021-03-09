@@ -41,6 +41,11 @@ Veja os tutoriais publicados:
 
 ---
 
+### Oracle Cloud:
+* **Criar Instancia no OCI:** encurtador.com.br/kozBI
+
+---
+
 ### SQL:
 * **Multiplexando control file:** https://url.gratis/t723o
 * **Aumentar swap e partições:** https://url.gratis/bHLPf
