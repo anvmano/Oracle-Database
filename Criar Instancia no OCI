@@ -5,7 +5,7 @@
         password
     
     - criação compartimento (para isolar as instancias)
-        option (3 barras horizontais) -> Identity -> Compartments
+    - option (3 barras horizontais) -> Identity -> Compartments
         
         - Create Compartment
             Name (nome do compartimento)
@@ -25,49 +25,9 @@
                 Shape (definir a configuração de hardware da instancia)
             
             - Networking -> edit
-                - caso nao tenha criado VNC
-                    - option (3 barras horizontais) -> Networking -> Virtual Cloud Networks
-                        - Create VCN
-                            name (nome da VCN)
-                            CREATE IN COMPARTMENT (escolher compartimento)
-                            CIDR Blocks (para teste "10.0.0.0/16")
-                            DNS RESOLUTION
-                                USE DNS HOSTNAMES IN THIS VCN (marcado)
-                                                    
-                            - SUBNET
-                            - Create subnet
-                                NAME (nome da subnet da VCN)
-                                CREATE IN COMPARTMENT (escolher compartimento)
-                                SUBNET TYPE (Recomendação da Oracle "regional")
-                                CIDR BLOCK (para teste "10.0.0.0/24")
-                                ROUTE TABLE COMPARTMENT IN <COMPARTMENT_NAME>
-                                SUBNET ACCESS (Public Subnet)
-                                DNS RESOLUTION
-                                    USE DNS HOSTNAMES IN THIS SUBNET (marcado)
-                                DHCP OPTIONS COMPARTMENT IN <COMPARTMENT_NAME>
-                                    (default)
-                                Security Lists
-                                    (default)
-                                Create subnet
-
-                            - Internet Gateways
-                            - Create Internet Gateway
-                                NAME (nome do gateway)
-                                CREATE IN COMPARTMENT (escolher compartimento)
-                                Create Internet Gateway
-                            
-                            - Route Tables
-                                (selecionar Route Table)
-                                    Add Route Rules
-                                        TARGET TYPE (Internet Gateway)
-                                        DESTINATION CIDR BLOCK (para teste "0.0.0.0/0")
-                                        TARGET INTERNET GATEWAY IN <COMPARTMENT_NAME> (escolher Internet gatway)
-                                        Add Route Rules
-                
-                - caso ja tenha criado VCN
-                    Network
-                        Virtual cloud network in <COMPARTMENT_NAME>
-                            (escolher VCN)
+                Network
+                    Virtual cloud network in <COMPARTMENT_NAME>
+                        (escolher VCN)
                     Subnet
                         Subnet in <COMPARTMENT_NAME>
                             (escolher subnet)
@@ -75,60 +35,7 @@
                         Assign a public IPv4 address (marcar)
 
             - Add SSH keys
-                Paste public keys (marcar)
-                    - caso nao tenha chave SSH
-                        - abrir puttygen
-                            - Parameters
-                                - Type of key to generate:
-                                    RSA
-                                - Numbers of bits in a generate key:
-                                    2048
-                            - Generate (clicar)
-                            - key
-                                "Public key for pasting into Openssh authorized_keys file:"
-                                copiar TODO TEXTO
-                                    colar na criação da instancia
-                                    option (3 barras horizontais) -> Compute -> Instances -> Create Instance -> Add SSH keys -> SSH keys
-                            - Save the generated key
-                                Save public key (definir local seguro no HD)
-                                save private key (definir local seguro no HD)
-                    
-                    - caso ja tenha chave SSH
-                        colar chave SSH
-                            option (3 barras horizontais) -> Compute -> Instances -> Create Instance -> Add SSH keys -> SSH keys
+                colar chave SSH
+                    option (3 barras horizontais) -> Compute -> Instances -> Create Instance -> Add SSH keys -> SSH keys
             
             - CREATE
-
-# acessar OCI
-    Oracle Cloud
-        Compute -> Instances -> Instance Details
-            Instance Information
-                Instance Access -> Public IP Address (copiar)
-    - abrir putty
-        - category -> sessions
-            Host name 
-                ip da oracle cloud copiado
-            Connection Type
-                SSH
-            Saved Sessions
-                (nome da conexão <escolha>)
-        - category -> SSH -> Auth
-            Pivate key file for authentication
-                (Browse...) -> localizar private key salva
-        - category -> sessions -> load, save or delete a stored session
-            Save
-        - Open
-            (1° conexão: clicar em "SIM")
-            login as: opc
-            mensagem esperada
-                Authenticating with public key "<private_key>"
-                Last login: <date> from <IP>
-            
-            login root
-                sudo su -
-            
-            - localização do user "opc"
-                Oracle Cloud
-                    Compute -> Instances -> Instance Details
-                        Instance Information
-                            Instance Access -> Username
