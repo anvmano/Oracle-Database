@@ -42,7 +42,7 @@ Veja os tutoriais publicados:
 ---
 
 ### Oracle Cloud:
-* **Criar Instancia no OCI:** encurtador.com.br/kozBI
+* **Criar Instancia no OCI:** https://encurtador.com.br/kozBI
 
 ---
 
