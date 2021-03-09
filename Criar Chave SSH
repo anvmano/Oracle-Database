@@ -1,0 +1,19 @@
+Download do puttygen
+  https://www.puttygen.com/download-putty
+  
+- abrir puttygen
+    - Parameters
+        - Type of key to generate:
+            RSA
+        - Numbers of bits in a generate key:
+            2048
+
+    - Generate (clicar)
+
+    - key
+        "Public key for pasting into Openssh authorized_keys file:"
+        ## COPIAR TODO TEXTO ##
+
+    - Save the generated key
+        Save public key (definir local seguro no HD)
+        save private key (definir local seguro no HD)
