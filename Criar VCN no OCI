@@ -1,0 +1,42 @@
+- acessar oracle cloud
+    cloud acconunt
+    username
+    password
+    
+- option (3 barras horizontais) -> Networking -> Virtual Cloud Networks
+    - Create VCN
+        name (nome da VCN)
+        CREATE IN COMPARTMENT (escolher compartimento)
+        CIDR Blocks (para teste "10.0.0.0/16")
+        DNS RESOLUTION
+            USE DNS HOSTNAMES IN THIS VCN (marcado)
+                                
+        - SUBNET
+        - Create subnet
+            NAME (nome da subnet da VCN)
+            CREATE IN COMPARTMENT (escolher compartimento)
+            SUBNET TYPE (Recomendação da Oracle "regional")
+            CIDR BLOCK (para teste "10.0.0.0/24")
+            ROUTE TABLE COMPARTMENT IN <COMPARTMENT_NAME>
+            SUBNET ACCESS (Public Subnet)
+            DNS RESOLUTION
+                USE DNS HOSTNAMES IN THIS SUBNET (marcado)
+            DHCP OPTIONS COMPARTMENT IN <COMPARTMENT_NAME>
+                (default)
+            Security Lists
+                (default)
+            Create subnet
+
+        - Internet Gateways
+        - Create Internet Gateway
+            NAME (nome do gateway)
+            CREATE IN COMPARTMENT (escolher compartimento)
+            Create Internet Gateway
+        
+        - Route Tables
+            (selecionar Route Table)
+                Add Route Rules
+                    TARGET TYPE (Internet Gateway)
+                    DESTINATION CIDR BLOCK (para teste "0.0.0.0/0")
+                    TARGET INTERNET GATEWAY IN <COMPARTMENT_NAME> (escolher Internet gatway)
+                    Add Route Rules
