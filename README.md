@@ -27,6 +27,7 @@ Veja os tutoriais publicados:
 * **Release Upgrade Oracle 19.3:** https://url.gratis/yJIec
 * **Release Upgrade Rollback Oracle 19.5:** https://url.gratis/8q6lu
 * **Release Update Revision 19.5:** https://url.gratis/TGxqj
+* **Instalação Oracle 19c em Silent mode:** https://url.gratis/lsGH9
 
 ---
 
