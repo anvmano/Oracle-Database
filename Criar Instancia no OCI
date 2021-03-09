@@ -1,41 +1,39 @@
-# criar compartimento
-    - acessar oracle cloud
-        cloud acconunt
-        username
-        password
+- acessar oracle cloud
+    cloud acconunt
+    username
+    password
     
-    - criação compartimento (para isolar as instancias)
-    - option (3 barras horizontais) -> Identity -> Compartments
-        
-        - Create Compartment
-            Name (nome do compartimento)
-            Description (descrição do compartimento)
-            Parent Compartment (compartimento Pai - escolher compartimento)
-            Tag Key (Tag para identificação das instancias/VNIC/BLOCK VOLUME/BUCKET, etc...)
+- criação compartimento (para isolar as instancias)
+- option (3 barras horizontais) -> Identity -> Compartments
     
-    - criar instancia
-        - option (3 barras horizontais) -> Compute -> Instances
-        
-        - Create Instance
-            Name (nome da instancia)
-            Create in compartment (definir qual compartimento sera criada a instancia)
-            Placement and hardware -> edit
-                Availability domain (definir disponibilidade)
-                Image (escolha o Sistema Operacional)
-                Shape (definir a configuração de hardware da instancia)
-            
-            - Networking -> edit
-                Network
-                    Virtual cloud network in <COMPARTMENT_NAME>
-                        (escolher VCN)
-                    Subnet
-                        Subnet in <COMPARTMENT_NAME>
-                            (escolher subnet)
-                    Public IP Address
-                        Assign a public IPv4 address (marcar)
+    - Create Compartment
+        Name (nome do compartimento)
+        Description (descrição do compartimento)
+        Parent Compartment (compartimento Pai - escolher compartimento)
+        Tag Key (Tag para identificação das instancias/VNIC/BLOCK VOLUME/BUCKET, etc...)
 
-            - Add SSH keys
-                colar chave SSH
-                    option (3 barras horizontais) -> Compute -> Instances -> Create Instance -> Add SSH keys -> SSH keys
-            
-            - CREATE
+- criar instancia
+    - option (3 barras horizontais) -> Compute -> Instances
+    
+    - Create Instance
+        Name (nome da instancia)
+        Create in compartment (definir qual compartimento sera criada a instancia)
+        Placement and hardware -> edit
+            Availability domain (definir disponibilidade)
+            Image (escolha o Sistema Operacional)
+            Shape (definir a configuração de hardware da instancia)
+        
+        - Networking -> edit
+            Network
+                Virtual cloud network in <COMPARTMENT_NAME>
+                    (escolher VCN)
+                Subnet
+                    Subnet in <COMPARTMENT_NAME>
+                        (escolher subnet)
+                Public IP Address
+                    Assign a public IPv4 address (marcar)
+        - Add SSH keys
+            colar chave SSH
+                option (3 barras horizontais) -> Compute -> Instances -> Create Instance -> Add SSH keys -> SSH keys
+        
+        - CREATE
