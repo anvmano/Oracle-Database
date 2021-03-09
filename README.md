@@ -43,6 +43,8 @@ Veja os tutoriais publicados:
 
 ### Oracle Cloud:
 * **Criar Instancia no OCI:** https://encurtador.com.br/kozBI
+* **Criar VCN no OCI:** https://encurtador.com.br/erxIP
+* **Acessar instancia no OCI:** https://encurtador.com.br/fgqrP
 
 ---
 
@@ -53,7 +55,10 @@ Veja os tutoriais publicados:
 * **User | Profile | Roles | Grants:** https://url.gratis/xW2wZ
 * **Comando sobre tablespace:** https://url.gratis/TNhHm
 
+---
 
+### Outros tutorias:
+* **Criar chave SSH:** https://encurtador.com.br/emJP5
 
 
 
