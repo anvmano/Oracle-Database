@@ -14,6 +14,8 @@ Veja os tutoriais publicados:
 ### Sistema operacional
 * **Instalação do Oracle Linux:** https://url.gratis/ruGhl
 
+---
+
 ### Instalação/upgrade:
 
 * **Instalação Oracle 12c:** https://url.gratis/vNOTW
