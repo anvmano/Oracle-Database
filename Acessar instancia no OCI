@@ -1,0 +1,32 @@
+Oracle Cloud
+    Compute -> Instances -> Instance Details
+        Instance Information
+            Instance Access -> Public IP Address (copiar)
+
+- abrir putty
+    - category -> sessions
+        Host name 
+            ip da oracle cloud copiado
+        Connection Type
+            SSH
+        Saved Sessions
+            (nome da conexão <escolha>)
+    - category -> SSH -> Auth
+        Pivate key file for authentication
+            (Browse...) -> localizar private key salva
+    - category -> sessions -> load, save or delete a stored session
+        Save
+    - Open
+        (1° conexão: clicar em "SIM")
+        login as: opc
+        mensagem esperada
+            Authenticating with public key "<private_key>"
+            Last login: <date> from <IP>
+        - localização do user "opc"
+            Oracle Cloud
+                Compute -> Instances -> Instance Details
+                    Instance Information
+                        Instance Access -> Username
+        
+        - login root
+            sudo su -
