@@ -1,0 +1,154 @@
+VM atualizada
+rede configurada
+firewall Configurado
+pre-install efetuado (19c)
+
+# instalação dos binarios
+    - backup do arquivo db_instal.rsp
+        - acessar a pasta
+            cd $ORACLE_HOME/install/response
+        
+        - backup
+            cp db_install.rsp db_install.rsp.bkp
+        
+    - editar db_install.rsp
+        vi db_install.rsp
+        alterar as seguintes linhas
+            oracle.install.option=INSTALL_DB_SWONLY
+            UNIX_GROUP_NAME=oinstall
+            INVENTORY_LOCATION=/u01/app/
+            oraInventoryORACLE_HOME=/u01/app/oracle product /19.3/dbhome_1
+            ORACLE_BASE=/u01/app/oracle
+            oracle.install.db.InstallEdition=EE
+            oracle.install.db.OSDBA_GROUP=dba
+            oracle.install.db.OSOPER_GROUP=oper
+            oracle.install.db.OSBACKUPDBA_GROUP=backupdba
+            oracle.install.db.OSDGDBA_GROUP=dgdba
+            oracle.install.db.OSKMDBA_GROUP=kmdba
+            oracle.install.db.OSRACDBA_GROUP=racdba
+            oracle.install.db.rootconfig.executeRootScript=false
+    
+    - executar pre requisitos
+        - acessar a pasta
+            cd /u01/app/oracle/product/19.3/dbhome_1/
+        
+        - rodar comando
+            ./runInstaller -executePrereqs -silent -responseFile /u01/app/oracle/product/19.3/dbhome_1/install/response/db_install.rsp
+            mensagem esperada
+                Launching Oracle Database Setup Wizard...
+                Prerequisite checks executed successfully.
+                Moved the install session logs to: /u01/app/oraIventory/logs/InstallActions<date>
+    
+    - executar responseFile
+        ./runInstaller -silent -responseFile /u01/app/oracle/product/19.3/dbhome_1/install/response/db_install.rsp
+
+        - executar scripts ($root)
+            /u01/app/oraIventory/orainstRoot.sh
+            /u01/app/oracle/product/19.3/dbhome_1/root.sh
+
+# criação do listener
+    - backup do arquivo db_netca.rsp
+        - acessar a pasta
+            cd $ORACLE_HOME/assistants/netca
+        
+        - backup
+            cp db_netca.rsp db_install.rsp.bkp
+        
+    - editar db_install.rsp 
+        vim /u01/app/oracle/product/19.3/dbhome_1/assistants/netca/netca.rsp
+        alterar as seguintes linhas (caso necessario)
+            INSTALL_TYPE=""typical""
+            LISTENER_NUMBER=1
+            LISTENER_PROTOCOLS={"TCP;1521"}
+            NSN_PROTOCOLS={"TCP;HOSTNAME;1512"}
+    
+    - executar responseFile
+        - acessar pasta bin
+            cd /u01/app/oracle/product/19.3/dbhome_1/bin
+        - executar responseFile
+            netca -silent -responseFile /u01/app/oracle/product/19.3/dbhome_1/assistants/netca/netca.rsp
+            mensagem esperada
+                Oracle Net Services configuration successful. The exit code is 0
+            caso erro "No valid IP Address returned for the host base012.localdomain"
+                verificar o arquivo "/etc/hosts", configurar hosts.
+
+    - verificar listener
+        lsnrctl status
+        mensagem esperada
+            Service "<SID>.localdomain" has 1 instance(s).
+                Instance "<SID>", status READY, has 1 handler(s) for this service...
+            Service "<SID>XDB.localdomain" has 1 instance(s).
+                Instance "<SID>", status READY, has 1 handler(s) for this service...
+            The command completed successfully
+
+
+# criação do database
+    - backup do arquivo dbca.rsp
+        - acessar a pasta
+            cd $ORACLE_HOME/assistants/dbca
+        
+        - backup
+            cp dbca.rsp dbca.rsp.bkp
+        
+    - editar dbca.rsp
+        vi dbca.rsp
+        verificar a linha
+            "responseFileVersion" se esta setado para a versao do banco
+
+        - alterar as seguintes linhas
+            gdbName=<SID>
+            sid=<SID>
+            databaseConfigType=(verificar qual opção)
+            createAsContainerDatabase=(false = sem PDB || true = com PDB)
+            numberOfPDBs=(numero de PDBs)
+            pdbName=(nome dos PDBs)
+            useLocalUndoForPDBs=(true = undo para cada PDB)
+            pdbAdminPassword=(senha)
+            templateName=(verificar o tipo na pasta "/u01/app/oracle/product/19.3/dbhome_1/assistants/dbca/templates/")
+            sysPassword=(senha)
+            systemPassword=(senha)
+            emConfiguration=(verificar qual instalação)
+            datafileDestination=(verificar local dos datafiles)
+            recoveryAreaDestination=(verificar local da recovery area)
+            storageType=(FS = File System || ASM)
+            characterSet=
+            sampleSchema= (true | false)
+            memoryPercentage=(a escolha, verificar disponibilidade)
+            automaticMemoryManagement=false
+ 
+    - rodar comando
+        - acessar pasta bin
+            cd /u01/app/oracle/product/19.3/dbhome_1/bin
+        dbca -silent -createDatabase -responseFile /u01/app/oracle/product/19.3/dbhome_1/assistants/dbca/dbca.rsp
+        mensagem esperada
+            Prepare for db operation
+            8% complete
+            Copying database files
+            31% complete
+            Creating and starting Oracle instance
+            32% complete
+            36% complete
+            40% complete
+            43% complete
+            46% complete
+            Completing Database Creation
+            51% complete
+            54% complete
+            Creating Pluggable Databases
+            58% complete
+            77% complete
+            Executing Post Configuration Actions
+            100% complete
+            Database creation complete. For details check the logfiles at:
+             /u01/app/oracle/cfgtoollogs/dbca/<SID>.
+            Database Information:
+            Global Database Name:<SID>
+            System Identifier(SID):<SID>
+            Look at the log file "/u01/app/oracle/cfgtoollogs/dbca/ORCL12/ORCL12.log" for further details.
+    
+    - verificar status do banco
+        acessar o banco
+            sqlplus / as sysdba
+                select instance_name, status from v$instance;
+                select cdb from v$database;
+                show pdbs;
