@@ -1,0 +1,140 @@
+Command Line Interface (CLI)
+https://docs.oracle.com/en-us/iaas/Content/API/SDKDocs/cliinstall.htm#Quickstart
+
+# INSTALAÇÃO CLI
+
+    # script prompt
+        The installation script prompts you for the following information.
+        If you do not have a compatible version of Python installed:
+        Windows and Linux: You are prompted to provide a location for installing the binaries and executables. The script will install Python for you.
+        MacOS: You are notified that your version of Python is incompatible. You must upgrade before you can proceed with the installation. The script will not install Python for you.
+        When prompted to upgrade the CLI to the newest version, respond with Y to overwrite an existing installation.
+        When prompted to update your PATH, respond with Y to be able to invoke the CLI without providing the full path to the executable. This will add oci.exe to your PATH.
+
+    Windows
+        - abrar powershel como administrador
+        - comando para politicas de execução
+            Set-ExecutionPolicy RemoteSigned
+            Get-ExecutionPolicy -List
+
+        - download script de Instalação
+            Invoke-WebRequest https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.ps1 -OutFile install.ps1
+
+        - instalação (sem script prompt)
+            install.ps1 -AcceptAllDefaults
+
+        - instalação (com script prompt)
+            iex ((New-ObjectSystem.Net.WebClient).DownloadString('https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.ps1'))
+    
+
+    OL7
+        - Terminal
+            sudo yum install python36-oci-cli
+        
+        - Desinstalação
+            sudo yum remove python36-oci-cli
+
+    Linux | Unix (incluindo OL8)
+        - Terminal (com script prompt)
+            bash -c "$(curl -L https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh)"
+
+        - Terminal (sem script prompt)
+            bash -c --accept-all-defaults "$(curl -L https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh)"
+        
+        - Desinstalação
+            sudo yum remove python36-oci-cli
+
+    Mac OS X
+        - Homebrew
+            brew update && brew install oci-cli
+    
+        - Atualização do CLI
+            brew update && brew upgrade oci-cli
+        
+        - Desistalação
+            brew uninstall oci-cli
+
+# iniciar sessao CLI com token
+    - Abrir powershel como administrador
+        oci session authenticate
+        - Localização region
+            Compute -> Instances -> Instance Details -> Instance information -> General Information -> Region: xx-yyyyyyyyy-k
+        - "Enter the name of the profile you would like to create:"
+            <seu_usuario>
+
+    - Localização do arquivo de config
+        C:\Users\<usuario_computador>\.oci\
+    
+# COMANDOS OCI-CLI
+    - sintaxe OCI
+        oci <service> <type> <action> <options>
+    
+    - OCI help
+        oci -h
+        oci <service> -h
+        oci <service> <type> -h
+        oci <service> <type> <action> -h
+        oci <service> <type> <action> <options> -h
+    
+    - Exemplos
+        - Testando usuario
+            oci iam region list --config-file C:\Users\<usuario_computador>\.oci\config --profile <seu_usuario> --auth security_token
+
+        - Validando token
+            oci session validate --config-file C:\Users\<usuario_computador>\.oci\config --profile <seu_usuario> --auth security_token
+
+        - Revalidar token
+            oci session refresh --profile <seu_usuario> --auth security_token
+        
+        - Shutdown Compute Instance CLI
+            oci compute instance action --action stop --instance-id ocid1.instance.oc1.sa-saopaulo-1.antxeljr3tmdvnqcyicjx2ioqnx4t7uifqdumgxihjvvcxmcbns4nulxdrla --config-file C:\Users\Navar\.oci\config --profile anvmano --auth security_token
+
+        - Startup Compute Instance CLI
+            oci compute instance action --action start --instance-id ocid1.instance.oc1.sa-saopaulo-1.antxeljr3tmdvnqcyicjx2ioqnx4t7uifqdumgxihjvvcxmcbns4nulxdrla --config-file C:\Users\Navar\.oci\config --profile anvmano --auth security_token
+
+        - Reboot Compute Instance CLI
+            oci compute instance action --action reboot --instance-id ocid1.instance.oc1.sa-saopaulo-1.antxeljr3tmdvnqcyicjx2ioqnx4t7uifqdumgxihjvvcxmcbns4nulxdrla --config-file C:\Users\Navar\.oci\config --profile anvmano --auth security_token
+    
+# Validação de usuario sem token
+    - Abrir powershel como administrador
+        oci setup config
+        mensagem esperada
+            Enter a location for your config: C:\Users\<usuario_computador>\.oci\config
+
+            Enter the name of the profile you would like to create: <seu_usuario>
+            
+            Enter a user OCID: "OCID DO SEU USUÁRIO"
+                Acessar Oracle Cloud
+                Option (3 barras horizontais) -> Identity -> Users -> (clicar no usuario) User Details -> User Information -> OCID -> Copy
+            
+            Enter a tenancy OCID: "OCID DO SEU TENANCY"
+                Acessar Oracle Cloud
+                Option (3 barras horizontais) ->Administration -> Tenancy Details - Tenacy Information -> OCID -> Copy
+            
+            Enter a region: "SUA REGION"
+                Acessar Oracle Cloud
+                Option (3 barras horizontais) -> Compute -> Instances -> Instance Details -> Instance information -> General Information -> Region: xx-yyyyyyyyy-k
+            
+            Enter a directory for your keys to be created: "LOCAL DE CRIAÇÃO DAS CHAVES"
+                C:\Users\<usuario_computador>\.oci\config
+            
+            Enter a name for your key [oci_api_key]: "NOME DA CHAVE PRIVADA" (default)
+            
+            Enter a passphrase for your private key (empty for no passphrase (default)): "SENHA PARA CHAVE PRIVADA" 
+            
+            Fingerprint: "SERÁ GERADA UMA IMPRESSÃO DIGITAL"
+
+    - Autenticar usuario no OCI
+        Acessar Oracle Cloud
+        Option (3 barras horizontais) -> Identity -> Users -> (clicar no usuario) User Details -> (coluna a esquerda) Resources -> API Keys -> Add API Key -> Choose Public Key File
+            - fazer upload
+                - localização
+                    C:\Users\<usuario_computador>\.oci\oci_api_key_public.pem
+
+    - Utilizar o Usuario criado como default
+        - Acessar a pasta
+            C:\Users\<usuario_computador>\.oci\
+        
+        - editar arquivo config
+
+        - copiar texto usuario criado para o default (substiruir)
