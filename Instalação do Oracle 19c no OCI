@@ -1,108 +1,105 @@
-# Instalação do Oracle 19c no OCI
+# Configuração do Linux
+    - Logar com o usuário root
+        sudo su -
 
-- Logar com o usuário root
-    sudo su -
+    - Desabilitar Selinux | permissive
+        sestatus | grep -i mode
+        vim /etc/selinux/config
+        (yyp - copia linha "SELINUX")
+        SELINUX=permissive
+        setenforce permissive
 
-- Desabilitar Selinux | permissive
-    sestatus | grep -i mode
-    vim /etc/selinux/config
-    (yyp - copia linha "SELINUX")
-    SELINUX=permissive
-    setenforce permissive
-
-- Firewall
-    service iptables status -- Oracle linux 6
-    systemctl status firewalld -- Oracle linux 7
-    setup -- Interface
-    systemctl stop firewalld
-    systemctl disable firewalld
+    - Firewall
+        service iptables status -- Oracle linux 6
+        systemctl status firewalld -- Oracle linux 7
+        setup -- Interface
+        systemctl stop firewalld
+        systemctl disable firewalld
 
 
-- Download do Oracle Database 19c RPM
-    - 1° opção
-        https://www.oracle.com/database/technologies/oracle19c-linux-downloads.html
+    - Download do Oracle Database 19c RPM
+        - 1° opção
+            https://www.oracle.com/database/technologies/oracle19c-linux-downloads.html
 
-        - Para copiar o arquivo para o OCI
-            - 1. Baixar no seu desktop ou notebook e transferir através do Winscp.
-            - 2. Importar o arquivo para dentro de um "object storage" e realizar o 
-                download via wget direto na compute instance.
-    - 2° opção
-        cd /home/opc
-        wget https://objectstorage.sa-saopaulo-1.oraclecloud.com/n/grik0wqtmgva/b/bucket-20201006-1344/o/oracle-database-ee-19c-1.0-1.x86_64.rpm
+            - Para copiar o arquivo para o OCI
+                - 1. Baixar no seu desktop ou notebook e transferir através do Winscp.
+                - 2. Importar o arquivo para dentro de um "object storage" e realizar o 
+                    download via wget direto na compute instance.
+        - 2° opção
+            cd /home/opc
+            wget https://objectstorage.sa-saopaulo-1.oraclecloud.com/n/grik0wqtmgva/b/bucket-20201006-1344/o/oracle-database-ee-19c-1.0-1.x86_64.rpm
 
- - Preinstall do oracle database 19c
-    yum -y install oracle-database-preinstall-19c
+     - Preinstall do oracle database 19c
+        yum -y install oracle-database-preinstall-19c
 
-- Password do usuário oracle
-    passwd oracle
-    * sua senha *
+    - Password do usuário oracle
+        passwd oracle
+        * sua senha *
 
-- Adding Users on an Instance
-    https://docs.cloud.oracle.com/en-us/iaas/Content/Compute/Tasks/addingusers.htm?Highlight=authorized_keys
+    - Adding Users on an Instance
+        https://docs.cloud.oracle.com/en-us/iaas/Content/Compute/Tasks/addingusers.htm?Highlight=authorized_keys
 
-    - 1° opção
-        mkdir /home/oracle/.ssh
-        cd /home/oracle/.ssh
-        vi authorized_keys
-            copiar chave publica para esse arquivo
+        - 1° opção
+            mkdir /home/oracle/.ssh
+            cd /home/oracle/.ssh
+            vi authorized_keys
+                copiar chave publica para esse arquivo
 
-    - 2° opção
-        mkdir /home/oracle/.ssh
-        cd /home/opc/.ssh
-        cp authorized_keys /home/oracle/.ssh
-        chown -R oracle:oinstall /home/oracle/
+        - 2° opção
+            mkdir /home/oracle/.ssh
+            cd /home/opc/.ssh
+            cp authorized_keys /home/oracle/.ssh
+            chown -R oracle:oinstall /home/oracle/
 
-- Configuração TCPKeepAlive
+    - Configuração TCPKeepAlive
 
-    - Via SSH
-        - vi /etc/ssh/sshd_config
-            X11Forwarding yes
-            X11UseLocalhost no
-            TCPKeepAlive yes -- Evidar da conexão ficar caindo
+        - Via SSH
+            - vi /etc/ssh/sshd_config
+                X11Forwarding yes
+                X11UseLocalhost no
+                TCPKeepAlive yes -- Evidar da conexão ficar caindo
 
-        - reiniciar ssh
-            service sshd restart
+            - reiniciar ssh
+                service sshd restart
 
-    - No putty
-        - Ir em "Connection" > Habilitar: "Enable TCP Keepalives (SO_KEEPALIVE OPTION)"
-        - Em "Seconds Between keepalives (0 to turm off): Colocar "30"
+        - No putty
+            - Ir em "Connection" > Habilitar: "Enable TCP Keepalives (SO_KEEPALIVE OPTION)"
+            - Em "Seconds Between keepalives (0 to turm off): Colocar "30"
 
-- Reboot da maquina
+    - Reboot da maquina
 
-- Instalação via RPM | configuração (a partir do Oracle 18c)
-
+# Configuração | Instalação via RPM (a partir do Oracle 18c) (root)
     https://docs.oracle.com/en/database/oracle/oracle-database/19/ladbi/running-rpm-packages-to-install-oracle-database.html#GUID-BB7C11E3-D385-4A2F-9EAF-75F4F0AACF02
     https://docs.oracle.com/en/database/oracle/oracle-database/19/ladbi/about-rpm-based-oracle-database-installation.html#GUID-C2B4A806-E1E2-4B77-971B-628CFF18A488
-
-    - com root
-    - acessar pasta
-        cd /home/opc
-    - efetuar instalação
-        yum -y localinstall oracle-database-ee-19c-1.0-1.x86_64.rpm
-
-    - Configuração do Oracle Database 19c
+    - Configuração
         - acessar pasta
-            cd /opt/oracle/product/19c/dbhome_1/assistants/dbca/templates
+            cd /home/opc
 
-        - modificar arquivo
-            vi General_Purpose.dbc
-            <percentageMemTOSGA>40</percentageMemTOSGA> -- Mudar pra 75
+        - efetuar instalação
+            yum -y localinstall oracle-database-ee-19c-1.0-1.x86_64.rpm
 
-        - Para configurar instalação, acessar os arquivos
-            - vi /etc/sysconfig/oracledb_ORCLCDB-19c.conf
-                - parametros possiveis de mudança
-                    LISTENER_PORT
-                    ORACLE_DATA_LOCATION
-                    EM_EXPRESS_PORT
+        - Configuração do Oracle Database 19c
+            - acessar pasta
+                cd /opt/oracle/product/19c/dbhome_1/assistants/dbca/templates
 
-            - vi /etc/init.d/oracledb_ORCLCDB-19c
-                - parametros possiveis de mudança
-                    ORACLE_SID
-                    PDB_NAME
-                    NUMBER_OF_PDBS
+            - modificar arquivo
+                vi General_Purpose.dbc
+                <percentageMemTOSGA>40</percentageMemTOSGA> -- Mudar pra 75
 
+            - Para configurar instalação, acessar os arquivos
+                - vi /etc/sysconfig/oracledb_ORCLCDB-19c.conf
+                    - parametros possiveis de mudança
+                        LISTENER_PORT
+                        ORACLE_DATA_LOCATION
+                        EM_EXPRESS_PORT
 
-    - instalação
+                - vi /etc/init.d/oracledb_ORCLCDB-19c
+                    - parametros possiveis de mudança
+                        ORACLE_SID
+                        PDB_NAME
+                        NUMBER_OF_PDBS
+
+    - Instalação
         /etc/init.d/oracledb_ORCLCDB-19c configure
 
         - Se a instalação falhar, efetue limpeza.
@@ -114,7 +111,7 @@
     -- This script creates a container database (ORCLCDB) with one pluggable database
         (ORCLPDB1) and configures the listener at the default port (1521).
 
-- Acessar sua instance 19c no OCI
+# Acessar sua instance 19c no OCI
     - login como oracle
         su - oracle
     
@@ -139,7 +136,6 @@
             show pdbs;
 
 # script para startup e shutdown automatico (root)
-
     - Editar bash_profile
         vi /home/oracle/.bash_profile
            
