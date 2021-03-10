@@ -38,6 +38,7 @@ Veja os tutoriais publicados:
 * **Criar VCN no OCI:** https://encurtador.com.br/erxIP
 * **Acessar instancia no OCI:** https://encurtador.com.br/fgqrP
 * **Instalação do Oracle 19c no OCI:** https://url.gratis/53fpB
+* **Command Line Interface (CLI)** https://url.gratis/ynuYf
 
 ---
 
