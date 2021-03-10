@@ -33,18 +33,11 @@ Veja os tutoriais publicados:
 
 ---
 
-### Scripts:
-
-* **Monitorar SO:** https://url.gratis/ZIBFx
-* **Firewall no linux:** https://url.gratis/A3RyV
-* **Script para startup automatico:** https://url.gratis/tP3h2
-
----
-
 ### Oracle Cloud:
 * **Criar Instancia no OCI:** https://encurtador.com.br/kozBI
 * **Criar VCN no OCI:** https://encurtador.com.br/erxIP
 * **Acessar instancia no OCI:** https://encurtador.com.br/fgqrP
+* **Instalação do Oracle 19c no OCI:** https://url.gratis/53fpB
 
 ---
 
@@ -54,6 +47,14 @@ Veja os tutoriais publicados:
 * **Parametros do GLOGIN:** https://url.gratis/Y7Txn
 * **User | Profile | Roles | Grants:** https://url.gratis/xW2wZ
 * **Comando sobre tablespace:** https://url.gratis/TNhHm
+
+---
+
+### Scripts:
+
+* **Monitorar SO:** https://url.gratis/ZIBFx
+* **Firewall no linux:** https://url.gratis/A3RyV
+* **Script para startup automatico:** https://url.gratis/tP3h2
 
 ---
 
