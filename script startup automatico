@@ -1,8 +1,8 @@
 # scrip para startup e shutdown automatico (root)
     # configurar oratab
         vi /etc/oratab
-            ORCL1:/u01/app/oracle/product/19.0.0/dbhome_1:N
-            ORCL1:/u01/app/oracle/product/19.0.0/dbhome_1:Y
+            <SID>:/u01/app/oracle/product/19.0.0/dbhome_1:N
+            <SID>:/u01/app/oracle/product/19.0.0/dbhome_1:Y
 
 # adicionar scrip
     vi /etc/init.d/dbora
