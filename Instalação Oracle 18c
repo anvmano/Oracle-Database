@@ -126,6 +126,7 @@ pre-install efetuado
         export PATH=$ORACLE_HOME/bin:$PATH
         export LD_LIBRARY_PATH=$ORACLE_HOME/lib:/lib:/usr/lib
         export CLASSPATH=$ORACLE_HOME/jlib:$ORACLE_HOME/rdbms/jlib
+        alias db_env='. /home/oracle/db_env'
 
 # Configuração do db_env. ($root)
     vi /home/oracle/db_env
