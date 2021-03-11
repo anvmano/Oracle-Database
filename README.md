@@ -34,9 +34,9 @@ Veja os tutoriais publicados:
 ---
 
 ### Oracle Cloud:
-* **Criar Instancia no OCI:** https://encurtador.com.br/kozBI
-* **Criar VCN no OCI:** https://encurtador.com.br/erxIP
-* **Acessar instancia no OCI:** https://encurtador.com.br/fgqrP
+* **Criar Instancia no OCI:** https://url.gratis/3jTT8
+* **Criar VCN no OCI:** https://url.gratis/vbWtt
+* **Acessar instancia no OCI:** https://url.gratis/0wZlp
 * **Instalação do Oracle 19c no OCI:** https://url.gratis/53fpB
 * **Command Line Interface (CLI)** https://url.gratis/ynuYf
 
