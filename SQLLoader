@@ -1,0 +1,69 @@
+#SQLloader
+- local do aplicação
+    - Rodar variaveis do banco
+    - acessar a pasta
+        cd $ORACLE_HOME/bin
+
+- help
+    - acessar pasta da aplicação
+        - executar
+            sqlldr
+
+
+# Utilização
+    - <control_file_carga>.ctl
+        # Criar control file do SQLloader (vi <control_file_carga>.ctl)
+        # control file do SQLloader e DIFERENTE do do control file do banco | distintos #
+        # O control file sao os parametros definidos para carga no banco
+        # Parametros https://docs.oracle.com/cd/B19306_01/server.102/b14215/ldr_params.htm
+    
+    - <nome_carga>.dat
+        # Criar arquivo de carga (vi <nome_carga>.dat)
+        # Arquivo que contem os dados para carga no banco
+    
+    - Articles.bad
+        # arquivo criado automaticamente com linhas nao inseridas
+        # linhas nao inseridas que nao atendem o control file
+    
+    - <nome_carga>.log
+        # Registro do SQLloader com informações da carga
+
+    - Exemplo
+        - vi <control_file_carga>.ctl
+
+            --load file <nome_carga>
+            OPTIONS (ERRORS=999999999, ROWS=100)
+            load data
+            characterset WE8ISO8859P1       --(pode ser alterado)
+            infile '/u01/loader2.dat'       --(local do arquivo de carga)
+            badfile '/u01/articles.bad'     --(local do bad file)
+            discardfile '/u01/articles.dsc' --(registro de linhas nao inseridas)
+            APPEND
+            INTO TABLE <table_name>         --(nome da tabela)
+            FIELDS TERMINATED BY ','        --(define o separador para colunas)
+            (<coluna_1>, <coluna_2>, <coluna_3>, <coluna_4>, <coluna_5>)
+
+        - vi <nome_carga>.dat
+
+            1,Ben Kanobi, plaintext,Kawasaki news article
+            bad,bad,bad,bad
+
+# Comando para carga
+  sqlldr <user>/password@<SID> CONTROL=<control_file_carga>.ctl DATA=<nome_carga>.dat
+        
+  - Mensagem esperada
+
+    SQL*Loader: Release X.Y.Y.Y.Y - Production on <date>
+    Version X.Y.Y.Y.Y
+
+    Copyright (c) 1982, 2019, Oracle and/or its affiliates.  All rights reserved.
+
+    Path used:      Conventional
+    Commit point reached - <numero de linhar em "<nome_carga>.dat">
+
+    Table table_name:
+    <Z> Rows successfully loaded.
+
+    Check the log file:
+    <nome_carga>.log
+    for more information about the load.
