@@ -1,0 +1,239 @@
+# Migrando uma VM do VB para o OCI
+    https://docs.oracle.com/en/virtualization/virtualbox/6.1/user/cloud-integration.html
+    
+    - Baixar e instalar o VirtualBox 6.1 e o Extension Pack 6.1
+        https://www.virtualbox.org/wiki/Downloads
+
+# CRIAÇÃO DE PAR DE CHAVES
+    https://docs.oracle.com/en/virtualization/virtualbox/6.1/user/Introduction.html#cloudcreate-api-keypair
+    https://docs.cloud.oracle.com/en-us/iaas/Content/API/Concepts/apisigningkey.htm#How
+
+    - Caso esteja usando windows, instalar GitBash
+        https://git-scm.com/download/win
+    
+    - execute o programa GitBash
+        - Comandos para criar chaves
+            mkdir /c/Users/<user>/Downloads/.oci
+    
+        - Gerar chave com "passphrase"
+            # Note: We recommend that you use a passphrase for your key.
+            openssl genrsa -out ~\.oci\oci_api_key.pem -aes128 -passout stdin 2048 */
+
+        - Gerar chave sem passphrase:
+            openssl genrsa -out /c/Users/<user>/Downloads/.oci/oci_api_key.pem 2048
+
+        - Gerar chave publica a partir da chave privada:
+            openssl rsa -pubout -in /c/Users/<user>/Downloads/.oci/oci_api_key.pem -out /c/Users/<user>/Downloads/.oci/oci_api_key_public.pem
+
+        - Para visualizar a chave publica criada
+            cat /c/Users/<user>/Downloads/.oci/oci_api_key_public.pem
+
+    - Upload da chave publica na Oracle Cloud Infrastructure
+        acessar Oracle Cloud
+            Option (3 barras horizontais) -> Identity -> Users -> Clica no Usuário -> API Keys -> Add Public Key -> Import
+                - fazer upload
+                    - localização
+                        /c/Users/<user>/Downloads/.oci/oci_api_key_public.pem -> Add
+
+# Criar profile cloud (VirtualBox)
+    https://docs.oracle.com/en/virtualization/virtualbox/6.1/user/Introduction.html#cloudcreate-cloud-profile
+
+    - Visualizar "fingerprint" da chave publica
+        - GitBash
+            $ openssl rsa -pubout -outform DER -in /c/Users/<user>/Downloads/.oci/oci_api_key.pem | openssl md5 -c
+
+    - Abra o VirtualBox
+        - Arquivo -> Nova VM na nuvem
+            - Destino de criação
+                - Destino (default)
+                - Conta (criar conta, botao a direita)
+                    - Acrescentar
+                        nome (nome da VM)
+
+                - Conta (editar conta, botao a direita)
+                    - Selecione a conta desejada
+                        - Propriedades
+                        - Preencher campos (caso nao use pass_phrase, deixar em branco)
+                            compartment: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                                Acessar Oracle Cloud
+                                    Option (3 barras horizontais) -> Compute -> Instance -> selecionar instancia -> Instance Information -> General Information -> OCID -> copy
+
+                            fingerprint: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                                Acessar Oracle Cloud
+                                    Option (3 barras horizontais) -> Identity -> Users -> Clica no Usuário -> API Keys -> copiar Fingerprint
+
+                            key_file: C:\Users\<user>\Downloads\.oci\oci_api_key.pem
+                            
+                            region: YY-xxxxxxxxxxx-kk
+                                Acessar Oracle Cloud
+                                    Option (3 barras horizontais) -> Compute -> Instances -> Instance Details -> Instance information -> General Information -> Region: xx-yyyyyyyyy-k
+
+                            tenancy: ocid1.tenancy.oc1..aaaaaaaaa27tcqr7ps3oe3nwvezd5mr47owyfiqupdyux5cr74egikplx3qq
+                                Acessar Oracle Cloud
+                                    Option (3 barras horizontais) ->Administration -> Tenancy Details - Tenacy Information -> OCID -> Copy
+
+                            user: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                                Acessar Oracle Cloud
+                                    Option (3 barras horizontais) -> Identity -> Users -> (clicar no usuario) User Details -> User Information -> OCID -> Copy
+
+                    - Caso apresente erro, verificar passos acima
+
+# Realizar a criação da VM
+    - Instalação do Oracle Linux 7.8 (ou superior) em modo minimal
+        - Sem IP fixo
+
+# Export
+    https://docs.oracle.com/en/virtualization/virtualbox/6.1/user/Introduction.html#cloudexport-
+
+    # Importante #
+    - Antes de iniciar o application da VM, será necessário realizar algumas configurações na mesma.
+        1. Use DHCP for network addresses.
+        2. Do not specify a MAC address.
+        3. Disable persistent network device naming rules.
+        4. Enable the serial console.
+        5. Enable paravirtualized device support.
+
+    - Use DHCP para endereços de rede.
+        # Configure a VM para usar um servidor DHCP para alocar endereços de rede em vez de usar um endereço IP estático.
+        # A instância do Oracle Cloud Infrastructure receberá um endereço IP automaticamente
+        - Caso tenha configurado IP Fixo
+
+        - acessar a VM (pelo VirtualBox)
+            vi /etc/sysconfig/network-scripts/ifcfg-enp0s3
+            - fazer as alterações
+                BOOTPROTO=DHCP
+                - Apagar as seguintes linhas
+                    DNS1
+                    DNS
+                    IPADDR
+                    PREFIX
+                    GATEWAY
+                    HWADDR
+
+        - Verificar IP
+            ifconfig
+            route -n
+
+        - Verificar DNS
+            cat /etc/resolv.conf
+
+    - Trocar o nome da interface de rede
+        - Derrubar interface de rede
+            /sbin/ip link set enp0s3 down
+        
+        - Alterar nome da interface
+            /sbin/ip link set enp0s3 name eth0
+        
+        - Alterar nome no arquivo
+            vi /etc/sysconfig/network-scripts/ifcfg-enp0s3
+                NAME=eth0
+                DEVICE=eth0
+    
+        - Subir interface de rede (com novo nome)
+            /sbin/ip link set eth0 up
+            ifup eth0
+            ip addr
+
+    - Desative as regras de rede persistentes.
+        vi /etc/default/grub
+        - Alterações
+            GRUB_CMDLINE_LINUX="net.ifnames=0 biosdevname=0"
+        
+        - Update the GRUB configuration.
+            grub2-mkconfig -o /boot/grub2/grub.cfg
+        
+        - Alterar o nome do arquivo de configurar de rede
+            mv /etc/sysconfig/network-scripts/ifcfg-enp0s3 /etc/sysconfig/network-scripts/ifcfg-eth0
+        
+        - Desativar qualquer regras para a interface de rede
+            - Acesar a pasta
+                cd /etc/udev/rules.d
+                - Caso exista alguma regra
+                    rm -f 70-persistent-net.rules
+                    ln -s /dev/null /etc/udev/rules.d/70-persistent-net.rules
+
+        - Ativar console serial
+            vi /etc/default/grub
+                - Alterar as seguintes linhas
+                    GRUB_TERMINAL_OUTPUT="console serial"
+                    GRUB_SERIAL_COMMAND="serial --unit=0 --speed=115200"
+
+        - Update the GRUB configuration.
+            grub2-mkconfig -o /boot/grub2/grub.cfg
+        
+        - verificar alterações
+            dmesg |grep console=ttyS0
+        
+        - reboot
+    - Ativar paravirtualized
+        dracut --logfile /var/log/Dracut.log --force --add qemu
+        
+        - Verificar alterações
+            lsinitrd | grep virtio
+
+# Exportando um Appliance para Oracle Cloud Infrastructure
+    https://docs.oracle.com/en/virtualization/virtualbox/6.1/user/Introduction.html#cloudexport-oci
+    - Parar a VM para exportação
+        - Abrir VirtualBox
+            - Clicar com botao direito na maquina Virtual
+                - Fechar
+                    - Desligamento por ACPI
+
+    - Exportar VM
+        - Abrir VirtualBox
+            - Clicar com botao direito na maquina Virtual
+                - Exportar para OCI
+                    Conta: Escolher a conta criada (Cloud Profile)
+                    Criação de máquina: Perguntar antes de exportar o disco como imagem customizada (B)
+
+        - Verificar o bucket (usar standard)
+            - Caso nao tenha Bucket Criado
+                Acessar Oracle Cloud
+                    Option (3 barras horizontais) -> Object Storage -> Object Storage -> Create bucket
+                        - Bucket Name (Escolher nome)
+                        - Default Storage Tier (standard para exportar VM)
+                        - Object Events (desmarcado)
+                        - Object Versioning (desmarcado)
+                        - Encryption
+                            Encrypt using Oracle managed keys
+                        - Tags (usar tag para identificação)
+            - Caso ja tenha Bucket
+                - Escolher Bucket criado
+                    Display name: "Nome da VM" (sera o nome da maquina no OCI)
+                    Launch Mode: PARAVIRTUALIZED
+                        * O modo PARAVIRTUALIZADO oferece melhor desempenho e deve ser adequado para a maioria VMs Oracle VM VirtualBox.
+                        O modo EMULADO é adequado para imagens de sistema operacional legado. *
+
+        # A exportação vai gerar uma imagem no bucket e criar uma instance dentro do OCI. #
+
+        - Verificar as configurações
+            Display name: "Nome da VM"
+            Private IP: (em brnco)
+            Assign Public IP = Yes (marcar)
+
+        - Monitore o processo de exportação usando o OCI Console.
+            - Abra o POWERSHELL
+                - acesse o local
+                    cd "C:\Program Files\Oracle\VirtualBox\"
+                    - execute o comando
+                        Get-Content -path C:\Users\<user>\.VirtualBox\VBoxSVC.log -wait
+
+# Acessar a instance via putty
+    - Usar o IP Publico da Compute Instance
+        Acessar Oracle Cloud
+            Option (3 barras horizontais) -> Compute -> Instances -> Clicar na instancia -> Instance information -> Instance Access -> Public IP Address -> Copy
+    
+    - Abrir putty
+        - Category
+            - Session
+                - specify the destination you want to connect to
+                    - host name (IP Publico da Instancia)
+                    - Port (22) (default)
+                - Load, save or delete a stored session
+                    - Saved session (colocar nome desejado)
+                    - Save
+                - Open
+    
+    - Acesso
+        # O acesso e feito da mesma forma da VM, via user 'root'.
+        # Diferente de quando a instancia e criada direto da OCI, acesso via user 'opc'
