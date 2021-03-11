@@ -62,6 +62,7 @@ Veja os tutoriais publicados:
 ### Outros tutorias:
 * **Criar chave SSH:** https://encurtador.com.br/emJP5
 * **Migrando uma VM do VB para o OCI:** https://url.gratis/Wvqr8
+* **SQLLoader:** https://url.gratis/XyLwh
 
 
 
