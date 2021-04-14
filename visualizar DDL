@@ -1,0 +1,109 @@
+set lines 800
+set pages 1000
+set long 999999999
+
+As duas primeiras ações abaixo, não são necessaŕias para obtermos os resultados que queremos, é apenas uma formatação de ambiente que pode ou não ser utilizada.
+
+    Adicionar um terminador SQL (; ou /) para cada sentença DDL gerada
+        exec dbms_metadata.set_transform_param(dbms_metadata.session_transform,'SQLTERMINATOR',true);
+          Procedimento PL/SQL concluído com sucesso.
+ 
+    Suprimir qualquer informação de atributos de armazenamento de segmentos
+        exec dbms_metadata.set_transform_param(dbms_metadata.session_transform,'SEGMENT_ATTRIBUTES',false);
+            Procedimento PL/SQL concluído com sucesso.
+ 
+- Gerar DDL para uma tabela
+    select dbms_metadata.get_ddl('TABLE','XPTO') "DDL  TABLE" from dual;
+
+- Gerar DDL para uma view
+    select dbms_metadata.get_ddl('VIEW','VIEW_XPTO_01') "DDL  VIEW" from dual;
+
+
+- Gerar DDL apenas para a chave estrangeira definida na tabela XPTO2
+    select dbms_metadata.get_dependent_ddl('REF_CONSTRAINT','XPTO2')  "DDL FK" from dual; 
+
+
+- Gerar DDL para restrições do tipo (PK/UK/CHK) existentes definidas em XPTO
+    select dbms_metadata.get_dependent_ddl('CONSTRAINT','XPTO')  "DDL PK/UK/CHK" from dual;
+ 
+
+- Gerar DDL para qualquer trigger existente para a tabela XPTO
+
+    select dbms_metadata.get_dependent_ddl('TRIGGER','XPTO') "DDL  TRIGGER" from dual;
+ 
+
+
+- Gerar DDL para qualquer índice existente para a tabela XPTO
+    select dbms_metadata.get_dependent_ddl('INDEX','XPTO') "DDL ÍNDICE"  from dual;
+ 
+
+- Gerar DDL para a view materializada
+    select dbms_metadata.get_ddl('MATERIALIZED_VIEW','MVIEW_XPTO')  "DDL MVIEW" from  dual;
+ 
+
+
+- Exemplo para geração de comandos DDL's para todas as tabelas existentes
+    select dbms_metadata.get_ddl(object_type, object_name) ddl from user_objects where object_type = 'TABLE';
+        Conforme descrito anteriormente, a VIEW que estamos tentando obter o DDL, não pertence ao usuário que estamos conectado no banco de dados, neste caso o SYS.
+        Para conseguirmos obter o DDL desejado, precisamos informar o OWNER do objeto no comando dbms_metadata.get_ddl, conforme demonstrado abaixo:
+            select dbms_metadata.get_ddl('OBJECT_TYPE','OBJECT_NAME','OWNER') "DDL  VIEW" from dual;
+            select dbms_metadata.get_ddl('VIEW','V_EXP_XPTO','XPTO') "DDL  VIEW" from dual;
+                Obs.: A saída do DDL acima está suprimido. Para que a saída seja completa, temos que configurar o comando set long 999999999 antes da execução do comando dbms_metadata.
+
+
+- Obter o DDL de todos os objetos para um schema(Owner) específico
+    set long 999999999
+    set head off
+    set echo off
+    set pagesize 0
+    set verify off
+    set feedback off
+
+    select dbms_metadata.get_ddl(object_type, object_name, owner)
+    from
+    (
+        --Convert DBA_OBJECTS.OBJECT_TYPE to DBMS_METADATA object type:
+        select
+            owner,
+            --Java object names may need to be converted with DBMS_JAVA.LONGNAME.
+            --That code is not included since many database don't have Java installed.
+            object_name,
+            decode(object_type,
+                'DATABASE LINK',      'DB_LINK',
+                'JOB',                'PROCOBJ',
+                'RULE SET',           'PROCOBJ',
+                'RULE',               'PROCOBJ',
+                'EVALUATION CONTEXT', 'PROCOBJ',
+                'PACKAGE',            'PACKAGE_SPEC',
+                'PACKAGE BODY',       'PACKAGE_BODY',
+                'TYPE',               'TYPE_SPEC',
+                'TYPE BODY',          'TYPE_BODY',
+                'MATERIALIZED VIEW',  'MATERIALIZED_VIEW',
+                'QUEUE',              'AQ_QUEUE',
+                'JAVA CLASS',         'JAVA_CLASS',
+                'JAVA TYPE',          'JAVA_TYPE',
+                'JAVA SOURCE',        'JAVA_SOURCE',
+                'JAVA RESOURCE',      'JAVA_RESOURCE',
+                object_type
+            ) object_type
+        from dba_objects
+        where owner in ('SCHEMA_OWNER_DESEJADO')
+            --These objects are included with other object types.
+            and object_type not in ('INDEX PARTITION','INDEX SUBPARTITION',
+            'LOB','LOB PARTITION','TABLE PARTITION','TABLE SUBPARTITION')
+            --Ignore system-generated types that support collection processing.
+            and not (object_type = 'TYPE' and object_name like 'SYS_PLSQL_%')
+            --Exclude nested tables, their DDL is part of their parent table.
+            and (owner, object_name) not in (select owner, table_name from dba_nested_tables)
+            --Exlclude overflow segments, their DDL is part of their parent table.
+            and (owner, object_name) not in (select owner, table_name from dba_tables where iot_type = 'IOT_OVERFLOW')
+    )
+    order by owner, object_type, object_name;
+
+
+
+Outros exemplos
+    select dbms_metadata.get_ddl('PROCEDURE','PR_TEMP_REU','ABCD') from dual;
+    select dbms_metadata.get_ddl('TABLE','PAUTA','DPTO') from dual;
+    select dbms_metadata.get_ddl('TRIGGER','TG_HREAX_01','VCTO') from dual;
+    select dbms_metadata.get_ddl('INDEX','ARTR_I_01','STSO') from dual;
