@@ -48,6 +48,7 @@ Veja os tutoriais publicados:
 * **Parametros do GLOGIN:** https://url.gratis/Y7Txn
 * **User | Profile | Roles | Grants:** https://url.gratis/xW2wZ
 * **Comando sobre tablespace:** https://url.gratis/TNhHm
+* **Visualização de DDL:** https://url.gratis/mXojC
 
 ---
 
