@@ -1,0 +1,212 @@
+VM atualizada
+rede configurada
+firewall Configurado
+linux atualizado
+pre-install efetuado
+    # caso nao tenha efetuado pre-install ($root)
+        terminal
+            yum -y install oracle-rdbms-server-12cR1-preinstall
+                - verificar id oracle
+                    uid=54321(oracle) gid=54321(oinstall) groups=54321(oinstall),54322(dba),54323(oper)
+                - alterar senha user oracle
+                    passwd oracle
+                        <insira a senha>
+    
+    # instalação de lib
+        yum install make -y
+        yum install binutils -y
+        yum install gcc -y
+        yum install libstdc++ -y
+        yum install libXtst -y
+        yum install sysstat -y
+        yum install glibc -y
+        yum install glibc-devel -y
+        yum install glibc-devel.i686 -y
+    
+    # Diretorio EM (Copiar arquivos do EM para este local)
+        mkdir -p /u01/app/oracle/INSTALL/EM
+        - setar variaveis
+        - acessar a pasta
+            cd $ORACLE_HOME/assistants/dbca/templates
+        - descompactar arquivos de template
+            unzip -q /u01/app/oracle/INSTALL/EM/12.1.0.2.0_Database_Template_for_EM12_3_0_0_0_Linux_x64.zip
+   
+   # executar dbca
+        dbca
+        - Caso erro "DISPLAY not set"
+            - verificar se esta executando via ssh
+                solução: executar direto na maquina fisica
+            - setar variaveis do display
+                solução:
+                    mobaXterm -> start local terminal -> Your DISPLAY is set to xxx.xxx.xxx.xxx:y.y
+                    conexão ssh -> export DISPLAY=xxx.xxx.xxx.xxx:y.y
+       
+        - Database operation
+            create database
+        
+        - Creation mode
+            advanced mode
+        
+        - Database template
+            (selecionar o template necessario)
+            - pre requisitos da maquina
+                https://docs.oracle.com/cd/E63000_01/EMBSC/preinstall_req_hw.htm#EMBSC121
+        
+        - database identification    
+            Global database Name: <SID>
+            SID: <SID>
+            [marcar] - create as container database
+            [marcar] - create a container database whit one or more PDBs
+            (escolher quantos PDBs)
+            PDB name prefix: (name)
+        
+        - management options
+            [desmarcar] - configure Enterprise manager database express
+        
+        - database credentials
+            senha: (escolha)
+        
+        - Network Configuration
+            listener:
+                - caso ja tenha instalado NETCA, ou grid, aceite o listener proposto
+                - sem listener: [marcar] - create a new listener
+                                listener name: (escolha) (ex: LISTENER)
+                                listener port: (padrao - 1521)
+                                [verificar caminho target oracle home: "/u01/app/oracle/product/12.1.0.2/db_01"]
+        
+        - storage location
+            database files storage type:
+                #GRID
+                    [escolha] - database file stortage type
+                        automatic storage management (ASM)
+                    [escolha] - use commom location for all database file
+                        file location: +DATA
+                    [escolha] - use oracle-management files
+                    [escolha] - recovery file storage type:
+                        automatic storage management (ASM)
+                    [escolha] - especify fast recovery area
+                        fast recovery area: +FRA
+                    [escolha] - enable arching
+                #sem GRID
+                    [escolha] - database file stortage type
+                        file system
+                    [escolha] - use commom location for all database file
+                        file location: {ORACLE_BASE}/oradata
+                    [escolha] - use oracle-management files
+                    [escolha] - recovery file storage type:
+                        file system
+                    [escolha] - especify fast recovery area
+                        fast recovery area: {ORACLE_BASE}/fast_recovery_area
+                    [escolha] - enable arching
+        
+        - database options
+            Sample schema
+                (desmarcar pois é instancia de EM)
+            Database vault & labe security
+                Configure database vault (desmarcado)
+        
+        - inicialization parameters
+            memory:
+                [escolha] - custom Settings
+                    [escolha] - memory management: automatic shared memory management (ASMM)
+            sizing: (padrao)
+            character sets:
+                [escolha] - use unicode (AL32UTF8)
+            connection mode:
+                [escolha] - dedicated server mode
+            - All inicialization parameters:
+                desabilitar: optimizer_adaptive_features -> FALSE
+        
+        - creation options
+            [escolha] - create database
+       
+        - summary:
+            finish
+        
+        - finish
+            close
+
+    # criar diretorios
+        mkdir -p /u01/app/oracle/middleware
+        mkdir -p /u01/app/oracle/agent
+    
+    # alterar port range ($root)
+        cat /proc/sys/net/ipv4/ip_local_port_range
+        esperado: 9000 65500
+        - alteração
+            vi /etc/sysctl.conf
+            Old: 
+                linha: # oracle-rdbms-server-12cR1-preinstall setting for net.ipv4.ip_local_port_range is 9000 65500
+                net.ipv4.ip_local_port_range = 9000 65500
+            New:
+                linha: # oracle-rdbms-server-12cR1-preinstall setting for net.ipv4.ip_local_port_range is 11000 65000
+                net.ipv4.ip_local_port_range = 11000 65500
+        
+        - Alteração de valores
+            sysctl -w net.ipv4.ip_local_port_range = "11000 65000"
+    
+    # instalação EM
+        ($root)
+        - alterar permissoes
+            chmod - R /u01/app/oracle/INSTALL
+        ($oracle)
+        - acessar a pasta 
+            cd /u01/app/oracle/INSTALL/EM
+            ./em13300_linux64.bin
+                - My Oralce support details
+                    (desmarcar)
+                
+                - Software updates
+                    (marcar a opção que convem)
+                    skip: caso nao tenha suporte
+                    My oralce support: caso tenha suporte da oracle, preencher
+               
+                - Prerequisite cheks
+                    (verifica pre requisitos)
+                    caso de erro, ajustar erros e rodar novamente pre requisitos (rerun)
+               
+                - Installation types
+                    Create a new enterprise manager system
+                        Simple
+                
+                - Installation details
+                    Middleware home location: /u01/app/oracle/middleware
+                    agent base directory: /u01/app/oracle/agent
+                    host name: <SIDem>.localdomain
+                
+                - Configuration details
+                    Adminestrator password
+                        (senha)
+                    database connection details
+                        database host name: <SIDem>.localdomain
+                        port: (porta configurada em "Network Configuration" no DBCA | 1521)
+                        service/SID: SID
+                        sys password: (senha)
+                
+                - shared location details
+                    [marcar] Configure oracle software library: (padrao)
+                    [desmarcar] Configure a shared location for oracle BI publisher
+                    [marcar] Enable Oracle BI publisher
+
+                - review
+                    Install
+                
+                - install progress
+                    - run scripts ($root)
+                        - open terminal
+                            /u01/app/oracle/middleware/allroot.sh
+                    - OK
+                
+                - Finish
+                    SALVAR INFORMAÇÔES
+    
+    # acessar EM
+        - abrir browser
+            https://SIDem.localdomain:port/em (pela VM)
+            https://IP:port/em (fora da VM)
+        
+        - Login
+            user: sysman
+            senha: configurada em "Configuration details" -> "database connection details" -> "sys password"
+            (marcar todas opções e aceitar)
+        
