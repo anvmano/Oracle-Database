@@ -30,6 +30,7 @@ Veja os tutoriais publicados:
 * **Release Upgrade Rollback Oracle 19.5:** https://url.gratis/8q6lu
 * **Release Update Revision 19.5:** https://url.gratis/TGxqj
 * **Instalação Oracle 19c em Silent mode:** https://url.gratis/lsGH9
+* **Criar maquina para EM 13:** https://url.gratis/AEA1z
 
 ---
 
