@@ -67,6 +67,8 @@ Veja os tutoriais publicados:
 * **SQLLoader:** https://url.gratis/XyLwh
 * **EXPDP:** https://url.gratis/9Y6Dd
 * **IMPDP:** https://url.gratis/lPRnp
+* **Informações e parâmetros de backup:** https://url.gratis/K9lTk
+* **Parametros RMAN:** https://url.gratis/H5oc7
 
 
 
