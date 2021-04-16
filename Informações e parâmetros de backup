@@ -1,0 +1,136 @@
+Obs1.: expired: Um backup se torna expirado somente após o RMAN executar uma operação CROSSCHECK, e constatar que o mesmo não se encontra mais no disco rígido
+Obs2.: obolete: Um backup se torna obsoleto quando o mesmo não é mais necessário para uso em uma eventual operação de recovery dentro da política de retenção adotada.
+Obs3.: banco em modo archivelog e necessario para restaurações pontuais.
+
+# verificar modo do banco (archive // noarchive)
+    - acessar o banco
+        sqlplus / as sysdba
+            archive log list;
+            select log_mode from v$database;
+
+# alterar banco para modo archive
+    - acessar o instancia
+        sqlplus / as sysdba
+            SHUTDOWN IMMEDIATE;
+            STARTUP MOUNT;
+            ALTER DATABASE ARCHIVELOG;
+            ALTER DATABASE OPEN;
+
+# verificar parametros de DB_RECOVERY_FILE_DEST
+    - acessar o instancia
+        sqlplus / as sysdba
+            show parameter DB_RECOVERY_FILE_DEST;
+
+    - verificar todos diretorio de archive
+        set pagesize 200
+        set linesize 400
+        column DEST_NAME format A25
+        column DESTINATION format A30
+        select DEST_NAME,STATUS,DESTINATION from V$ARCHIVE_DEST;
+
+# alterar pasta de archive
+    obs.: pasta default é a "FRA", caso a mesma tenha 10% do tamanho total, o BANCO PARA!
+    
+    - criar pasta para backup
+        mkdir -p /u01/app/oracle/BACKUP/ARCHIVELOGS
+    
+    - alterar local no banco
+        - acessar a instancia
+            sqlplus / as sysdba
+                alter system set log_archive_dest_1='location=/u01/app/oracle/BACKUP/ARCHIVELOGS' scope=spfile;
+                select DEST_NAME,STATUS,DESTINATION from V$ARCHIVE_DEST;
+                SELECT dest_name,status,destination FROM v$archive_dest WHERE status = 'VALID';
+
+# realizando hot backup
+    - acessar RMAN
+        rman target /
+    
+    - realizar backup
+        BACKUP FULL DATABASE;
+        - caso erro ORA28365: wallet is not open
+            sql'ALTER SYSTEM SET WALLET OPEN IDENTIFIED BY "<senha>"';
+    
+# comandos uteis do RMAN (rman target /)
+    - informações sobre backups catalogados
+        list backup;
+    
+    - informações resumida sobre backups catalogados
+        list backup summary;
+
+    - informações sobre backups do CONTROLFILE
+        list backup of CONTROLFILE;
+
+    - informações sobre backups do spfile
+        list backup of spfile;
+    
+    - validação de backup
+        validate backupset <backupset_number>;
+        - caso apresente bloco corrompido
+            select * from v$database_block_corruption;
+    
+    - validação do banco
+        backup validate database;
+
+    - apagar backup
+        delete backup;
+
+    - listar archive
+        list archivelog all;
+
+    - backup de archive
+        backup archivelog all;
+    
+    - listar backup de archive
+        list backup of archivelog all;
+
+    - verificar backup obsoletos
+        report obsolete;
+    
+    - apagar backup obsoletos
+        delete noprompt obsolete;
+
+    - backup do banco e archivelog
+        backup database plus archivelog;
+
+    - verificar qual datafile precisa de backup
+        report need backup;
+
+    - backup diferencial (level 0 e 1) e cumulativo
+        backup incremental level 0 database tag = 'level-0';  
+        backup incremental level 1 database tag = 'level-1-dif';
+        backup incremental level 1 cumulative database tag = 'level-1-cum';
+    
+    - parametro block change tracking
+        alter database enable block change tracking;
+
+# comando SQL para visualizar backups
+    select * from V$BACKUP_DATAFILE;
+    select * from V$BACKUP_DATAFILE_DETAILS;
+    select * from V$BACKUP_ARCHIVELOG_DETAILS;
+    select * from V$BACKUP_REDOLOG;
+    select * from V$LOG_HISTORY;
+    select * from V$BACKUP_CONTROLFILE_DETAILS;
+    select * from V$BACKUP_SPFILE_DETAILS;
+    select * from V$BACKUP_SET;
+    select * from V$BACKUP_SET_DETAILS;
+    select * from V$BACKUP_PIECE;
+    select * from V$BACKUP_PIECE_DETAILS;
+    select * from V$BACKUP_FILES;
+    select * from V$DATABASE_INCARNATION;
+
+# script de backup
+    run{
+        sql 'alter system checkpoint';
+        sql 'alter system switch logfile';
+        allocate channel ch1 device type disk;
+        allocate channel ch2 device type disk;
+        backup database plus archivelog;
+        crosscheck BACKUPSET device type disk;
+        crosscheck archivelog all;
+        report obsolete;
+        delete noprompt expired backup;
+        delete noprompt expired archivelog all;
+        delete noprompt obsolete;
+        release channel ch1;
+        release channel ch2;
+    }
