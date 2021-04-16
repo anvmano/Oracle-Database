@@ -1,0 +1,100 @@
+# acessando configurações do RMAN
+    - rman target /
+        - show all;
+            - informa tipo de registro ("catalog" ou "control file")
+                using target database control file instead of recovery catalog
+            
+            - informa a qual instancia as configurações pertence:
+                RMAN configuration parameters for database with db_unique_name <SID> are:
+            
+            - informa quantos backups serao mantidos no sistema:
+                CONFIGURE RETENTION POLICY TO REDUNDANCY 1; # default
+                CONFIGURE RETENTION POLICY TO RECOVERY WINDOW OF 3 DAYS; (define numeo de dias que o backups sera armazenado)
+            
+            - RMAN verifica tablespace que nao foram alteradas, e nao faz o backup:
+                CONFIGURE BACKUP OPTIMIZATION OFF; # default
+                CONFIGURE BACKUP OPTIMIZATION ON;
+                    obs: definição para nao efetuar backup:
+                        Datafile: o datafile deve ter o mesmo DBID, SCN, SCN de criação, RESETLOGS SCN e timestamp do datafile no backup;
+                        Archive log file: mesmo DBID, thread, sequencia numerica, RESETLOGS SCN e timestamp;
+                        Backup set: backup set reincidente e timestamp;
+            
+            - Altera se o backup e feito em disco (SSD/HD) ou fita (sbt):
+                CONFIGURE DEFAULT DEVICE TYPE TO DISK; # default
+                CONFIGURE DEFAULT DEVICE TYPE TO SBT;
+            
+            - Efetua o AUTOBACKUP do controlfile:
+                CONFIGURE CONTROLFILE AUTOBACKUP OFF; # default
+                CONFIGURE CONTROLFILE AUTOBACKUP ON;
+
+            - local e nome do backup do controlfile:
+                CONFIGURE CONTROLFILE AUTOBACKUP FORMAT FOR DEVICE TYPE DISK TO '%F'; # default
+                CONFIGURE CONTROLFILE AUTOBACKUP FORMAT FOR DEVICE TYPE DISK TO '<diretorio>/<nome_do_backup>.bkp';
+                    nome_do_backup:
+                        %a: ID number do banco de dados;
+                        %A: ID number do banco de dados completado com 0;
+                        %c: especifica o numero do backup piece. Valor maximo e 256;
+                        %d: SID
+                        %D: Dia atual: DD;
+                        %e: especifica o numero do archive log;
+                        %f: especifica numero do arquivo;
+                        %F: Combinação de dia + mes + ano e sequencia do DBID;
+                        %h: especifica numero do archive redo log;
+                        %I: especifica DBID;
+                        %M: Mes atual: MM;
+                        %n: SID. completando com 'x' ate completar 8 characteres;
+                        %N: especifica nome da tablespace;
+                        %p: especifica numero do backup set;
+                        %r: Resetlogs ID;
+                        %s: especifica numero do backup set;
+                        %S: especifica numero do backup set completado com 0;
+                        %t: backup set time stamp;
+                        %T: especifica o ano + mes + dia no formato 'YYYYMMDD';
+                        %u: um nome de 8 caracteres constituído por representações compactadas do backup set ou image copy number;
+                        %U: unique file name gerado pelo sistema;
+                        %Y: ano atual: YYYY;
+                obs.: o local default de backup do controlfile, e na "FRA".
+            
+            - configura o nivel de paralelismo do backup (verificar discos disponiveis):
+                CONFIGURE DEVICE TYPE DISK PARALLELISM 2 BACKUP TYPE TO BACKUPSET; # default
+                obs.: verificar numero de cores:
+                    grep "cpu cores" /proc/cpuinfo
+            
+            - define quantas copias do backup piece serao feitas no processo do backup:
+                CONFIGURE DATAFILE BACKUP COPIES FOR DEVICE TYPE DISK TO 1; # default
+            
+            - define quantas copias do backup piece do archivelog serao feitas no processo do backup:
+                CONFIGURE ARCHIVELOG BACKUP COPIES FOR DEVICE TYPE DISK TO 1; # default
+            
+            - define o tamanho maximo do backup sets:
+                CONFIGURE MAXSETSIZE TO UNLIMITED; # default
+                    obs.: caso o backup seja maior que o valor definido, apresentara erro "RMAN-06183".
+                CONFIGURE CHANNEL DEVICE TYPE DISK MAXPIECESIZE = NG; (define o tamanho maximo do backup em cada "channel")
+            
+            - encriptação do backup:
+                CONFIGURE ENCRYPTION FOR DATABASE OFF; # default
+
+            - configura o tipo de criptografia do backup:
+                CONFIGURE ENCRYPTION ALGORITHM 'AES128'; # default
+                obs.: verificar tipos de criptografia:
+                    select ALGORITHM_NAME from V$RMAN_ENCRYPTION_ALGORITHMS;
+            
+            - configura a compressao do backup:
+                CONFIGURE COMPRESSION ALGORITHM 'BASIC' AS OF RELEASE 'DEFAULT' OPTIMIZE FOR LOAD TRUE; # default
+                CONFIGURE COMPRESSION ALGORITHM 'HIGH'; (adequado quando velocidade da rede e limitado)
+                CONFIGURE COMPRESSION ALGORITHM 'MEDIUM'; (mais recomendado, boa compressao e velocidade)
+                CONFIGURE COMPRESSION ALGORITHM 'LOW'; (baixa compressao e rapido)
+
+            - configura a retenção de log na view "V$_RMAN_OUTPUT":
+                CONFIGURE RMAN OUTPUT TO KEEP FOR 7 DAYS; # default
+                obs1.: para visualizar as view:
+                    select SID, OUTPUT from V$RMAN_OUTPUT;
+                obs2.: verificar opções "http://www.dba-oracle.com/t_rman_112_monitor.htm"
+
+            - define politica para deletar archivelog:
+                CONFIGURE ARCHIVELOG DELETION POLICY TO NONE; # default
+                CONFIGURE ARCHIVELOG DELETION POLICY TO BACKED UP 1 TIMES TO DISK; (deleta archives ja backupeados pelo menos 1x)
+                CONFIGURE ARCHIVELOG DELETION POLICY TO APPLIED ON STANDBY; (deleta archives ja aplicados no standby)
+            
+            - define o local do snapshot do controlfile:
+                CONFIGURE SNAPSHOT CONTROLFILE NAME TO '/u01/app/oracle/product/12.1.0.2/db_1/dbs/snapcf_ORCL3.f'; # default
