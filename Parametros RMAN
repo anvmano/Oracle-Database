@@ -105,3 +105,6 @@
     CONFIGURE RETENTION POLICY TO RECOVERY WINDOW OF 7 DAYS;
     CONFIGURE DEVICE TYPE DISK BACKUP TYPE TO COMPRESSED BACKUPSET;
     obs.: para parametro default: CONFIGURE xxxxxxxxxxx yyyyyyyyyyyy zzzzzzzzzzzz clear;
+
+Obs1.: expired: Um backup se torna expirado somente após o RMAN executar uma operação CROSSCHECK, e constatar que o mesmo não se encontra mais no disco rígido
+Obs2.: obolete: Um backup se torna obsoleto quando o mesmo não é mais necessário para uso em uma eventual operação de recovery dentro da política de retenção adotada.
