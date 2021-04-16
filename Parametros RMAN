@@ -98,3 +98,10 @@
             
             - define o local do snapshot do controlfile:
                 CONFIGURE SNAPSHOT CONTROLFILE NAME TO '/u01/app/oracle/product/12.1.0.2/db_1/dbs/snapcf_ORCL3.f'; # default
+
+# configurações pertinentes
+    CONFIGURE CONTROLFILE AUTOBACKUP ON;
+    CONFIGURE CONTROLFILE AUTOBACKUP FORMAT FOR DEVICE TYPE DISK TO '/u01/app/oracle/BACKUP/CONTROLFILE/CTL_%d_%D%M%Y_%F.bkp';
+    CONFIGURE RETENTION POLICY TO RECOVERY WINDOW OF 7 DAYS;
+    CONFIGURE DEVICE TYPE DISK BACKUP TYPE TO COMPRESSED BACKUPSET;
+    obs.: para parametro default: CONFIGURE xxxxxxxxxxx yyyyyyyyyyyy zzzzzzzzzzzz clear;
