@@ -57,7 +57,7 @@ Veja os tutoriais publicados:
 
 * **Monitorar SO:** https://url.gratis/ZIBFx
 * **Firewall no linux:** https://url.gratis/A3RyV
-* **Script para startup automatico:** https://url.gratis/tP3h2
+* **Script para startup automatico:** https://url.gratis/i64cn
 
 ---
 
