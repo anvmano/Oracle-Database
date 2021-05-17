@@ -1,0 +1,139 @@
+# caso perca de todos datafiles
+    - verificar backup 
+        rman target /
+            list backup;
+            list backup of archivelog all;
+            validate backupset 'xx';
+    - colocar instancia como mount
+        rman target /
+            shutdown abort
+            startup mount
+    - restaurar backup
+        rman target /
+            restore database;
+            recover database;
+    - realizar novo backup
+        rodar script de backup
+    - subir instancia
+        rman target /
+            alter database open
+    
+
+# caso perca todos os controlfile
+    - verificar backup do controlfile
+        rman target /
+            verificar parametro: "CONFIGURE CONTROLFILE AUTOBACKUP /u01/app/oracle/BACKUP/CONTROLFILE/xxxxxxxxxx"
+        - verificar local do backup
+            cd /u01/app/oracle/BACKUP/CONTROLFILE
+            ls -tlhr
+
+    - derrubar/subir a instancia
+        sqlplus / as sysdba
+            shutdown abort;
+            startup nomount;
+            (PS.: sem controlfile, nao e possivel colocar instancia em mount)
+
+    - restaurar controlfile
+        rman target /
+            restore controlfile from '/u01/app/oracle/BACKUP/CONTROLFILE/CTL_ORCL3_20042021_c-996366903-20210420-02.bkp';
+            alter database mount;
+            recover database;
+            alter database open resetlogs;
+    
+    - realizar novo backup
+        script de backup
+
+# caso perca do spfile, controlfile e datafile
+    - verificar backup do controlfile
+        rman target /
+            verificar parametro: "CONFIGURE CONTROLFILE AUTOBACKUP /u01/app/oracle/BACKUP/CONTROLFILE/xxxxxxxxxx"
+        - verificar local do backup
+            cd /u01/app/oracle/BACKUP/CONTROLFILE
+            ls -tlhr
+    
+    - verificar backup do datafile
+        cd /u01/app/oracle/BACKUP/BACKUPSET/
+        ls -tlhr
+    
+    - restaurar spfile (sem spfile, so e possivel nomount pelo RMAN)
+        rman target /
+            startup nomount
+            restore spfile from '/u01/app/oracle/BACKUP/CONTROLFILE/CTL_ORCL3_20042021_c-996366903-20210420-04.bkp';
+    
+    - derrubar instancia e subir corretamente
+        rman target /
+            shutdown abort;
+            startup nomount;
+    
+    - restore do controlfile
+        rman target /
+            restore controlfile from '/u01/app/oracle/BACKUP/CONTROLFILE/CTL_ORCL3_20042021_c-996366903-20210420-04.bkp';
+    
+    - subir base como mount
+        rman target /
+            alter database mount;
+    
+    - recuperar datafiles
+        rman target /
+            restore database;
+            recover database;
+            alter database open resetlogs;
+    
+    - realizar novo backup
+        rodar script de backup
+
+# caso perca de redolog
+    - verificar archive no ambiente
+        sqlplus / as sysdba
+            show parameter db_recovery_file_dest
+        - verificar local, data e hora do ultimo archive
+            cd /u01/app/oracle/fast_recovery_area
+            ls -tlhr
+    
+    - verificar sequencia de log
+        sqlplus / as sysdba
+            archive log list;
+            Current log sequence 'xx'
+
+    - derrubar/subir a instancia
+        sqlplus / as sysdba
+            shutdown immediate;
+        rman target /
+            startup mount;
+
+    - iniciar a recuperação
+        run {
+            set until sequence xx thread 1;
+            restore database;
+            recover database;
+            alter database open resetlogs;
+        }
+
+        - casso erro seja apresentado
+            RMAN-03002: failure of recover command at <data-hora>
+            RMAN-06054: media recovery requesting unknown archived log for thread 1 with sequence yy and starting SCN of wwwwww
+            - só sera possivel voltar a sequencia yy apresentada. Efetuar o script novamente com a sequencia apresentada.
+    
+    - executar switch log file
+        sqlplus / as sysdba
+            ALTER SYSTEM ARCHIVE LOG CURRENT;
+    
+    - efetuar backup de archive
+        BACKUP ARCHIVELOG ALL;
+        
+--------------------------------------------------------------------------------
+
+# script para backup
+    run {
+    sql 'alter system checkpoint';
+    sql 'alter system switch logfile';
+    sql "create pfile=''/u01/app/oracle/BACKUP/PFILE/init$ORACLE_SID.ora'' from spfile";
+    backup database FORMAT '/u01/app/oracle/BACKUP/BACKUPSET/BKP_%d_%D%M%Y_%U.bkp'
+    plus archivelog FORMAT '/u01/app/oracle/BACKUP/ARCHIVELOGS/ARC_%d_%D%M%Y_%U.bkp' delete INPUT;
+    backup current controlfile format '/u01/app/oracle/BACKUP/CONTROLFILE/CTL_%d_%D%M%Y_%U.BKP';
+    crosscheck backupset device type disk;
+    crosscheck archivelog all;
+    delete noprompt expired backup;
+    delete noprompt expired archivelog all;
+    delete noprompt obsolete;
+    }
