@@ -1,24 +1,3 @@
-# caso perca de todos datafiles
-    - verificar backup 
-        rman target /
-            list backup;
-            list backup of archivelog all;
-            validate backupset 'xx';
-    - colocar instancia como mount
-        rman target /
-            shutdown abort
-            startup mount
-    - restaurar backup
-        rman target /
-            restore database;
-            recover database;
-    - realizar novo backup
-        rodar script de backup
-    - subir instancia
-        rman target /
-            alter database open
-    
-
 # caso perca todos os controlfile
     - verificar backup do controlfile
         rman target /
@@ -42,6 +21,132 @@
     
     - realizar novo backup
         script de backup
+
+# caso perca de redolog
+    - verificar archive no ambiente
+        sqlplus / as sysdba
+            show parameter db_recovery_file_dest
+        - verificar local, data e hora do ultimo archive
+            cd /u01/app/oracle/fast_recovery_area
+            ls -tlhr
+    
+    - verificar sequencia de log
+        sqlplus / as sysdba
+            archive log list;
+            Current log sequence 'xx'
+
+    - derrubar/subir a instancia
+        sqlplus / as sysdba
+            shutdown immediate;
+        rman target /
+            startup mount;
+
+    - iniciar a recuperação
+        run {
+            set until sequence xx thread 1;
+            restore database;
+            recover database;
+            alter database open resetlogs;
+        }
+
+        - casso erro seja apresentado
+            RMAN-03002: failure of recover command at <data-hora>
+            RMAN-06054: media recovery requesting unknown archived log for thread 1 with sequence yy and starting SCN of wwwwww
+            - só sera possivel voltar a sequencia yy apresentada. Efetuar o script novamente com a sequencia apresentada.
+    
+    - executar switch log file
+        sqlplus / as sysdba
+            ALTER SYSTEM ARCHIVE LOG CURRENT;
+    
+    - efetuar backup de archive
+        BACKUP ARCHIVELOG ALL;
+
+# caso perca temporary datafile
+    # perca de tempfile em nivel de SO
+        sqlplus / as sysdba
+            alter database tempfile '/oracle/oradata/ORCL/<TEMPFILE_NAME>.tmp' drop;
+            alter tablespace <tablespace_name> add tempfile '/oracle/oradata/ORCL/<TEMPFILE_NAME>.tmp' size 5m;
+
+    # perca de tempfile em nivel de banco
+        alter tablespace <tablespace_name> add tempfile '/oracle/oradata/ORCL/<TEMPFILE_NAME>.tmp' size 5m;
+
+# caso perca de UNDO tablespace
+    - derrubar/subir a instancia
+        sqlplus / as sysdba
+            shutdown immediate;
+
+    - subir instancia em mount
+        startup mount
+
+    - restaurar UNDO
+        rman target /
+            restore tablespace <undo_tablespace_name>;
+            recover tablespace <undo_tablespace_name>;
+    - subir instancia
+        alter database open;
+
+# caso perca tablespace Read-Only
+    - verificar backup 
+        rman target /
+            list backup;
+            list backup of archivelog all;
+
+    - verificar dados que precisam de backup
+        rman target /
+            report need backup;
+
+    - subir instancia em mount
+        rman target /
+            startup mount
+
+    - restaurar tablespace Read-Only
+        restore tablespace_name read_only;
+        recover tablespace_name read_only;
+    
+    - subir instancia
+        alter database open;
+    
+# caso perca de todos datafiles
+    - verificar backup 
+        rman target /
+            list backup;
+            list backup of archivelog all;
+            validate backupset 'xx';
+    - colocar instancia como mount
+        rman target /
+            shutdown abort
+            startup mount
+    - restaurar backup
+        rman target /
+            restore database;
+            recover database;
+    - realizar novo backup
+        rodar script de backup
+    - subir instancia
+        rman target /
+            alter database open
+
+# Caso perca 1 datafile:
+    - verificar backup 
+        rman target /
+            list backup;
+            list backup of archivelog all;
+            validate backupset 'xx';
+    - colocar instancia como mount
+        rman target /
+            shutdown abort
+            startup mount
+    - restaurar backup
+        rman target /
+            restore datafile <DATAFILE_NAME>;
+            recover datafile <DATAFILE_NAME>;
+    - realizar novo backup
+        rodar script de backup
+    - subir instancia
+        rman target /
+            alter database open
+
+
 
 # caso perca do spfile, controlfile e datafile
     - verificar backup do controlfile
@@ -82,46 +187,7 @@
     - realizar novo backup
         rodar script de backup
 
-# caso perca de redolog
-    - verificar archive no ambiente
-        sqlplus / as sysdba
-            show parameter db_recovery_file_dest
-        - verificar local, data e hora do ultimo archive
-            cd /u01/app/oracle/fast_recovery_area
-            ls -tlhr
-    
-    - verificar sequencia de log
-        sqlplus / as sysdba
-            archive log list;
-            Current log sequence 'xx'
-
-    - derrubar/subir a instancia
-        sqlplus / as sysdba
-            shutdown immediate;
-        rman target /
-            startup mount;
-
-    - iniciar a recuperação
-        run {
-            set until sequence xx thread 1;
-            restore database;
-            recover database;
-            alter database open resetlogs;
-        }
-
-        - casso erro seja apresentado
-            RMAN-03002: failure of recover command at <data-hora>
-            RMAN-06054: media recovery requesting unknown archived log for thread 1 with sequence yy and starting SCN of wwwwww
-            - só sera possivel voltar a sequencia yy apresentada. Efetuar o script novamente com a sequencia apresentada.
-    
-    - executar switch log file
-        sqlplus / as sysdba
-            ALTER SYSTEM ARCHIVE LOG CURRENT;
-    
-    - efetuar backup de archive
-        BACKUP ARCHIVELOG ALL;
-        
---------------------------------------------------------------------------------
+----------------------------------------------------------
 
 # script para backup
     run {
