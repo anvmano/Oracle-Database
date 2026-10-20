@@ -1,0 +1,54 @@
+# Credenciais e configuracao local com segredos
+.env
+.env.*
+!.env.example
+.oci/
+**/.oci/
+*.pem
+*.key
+*.ppk
+*.p12
+*.sso
+id_rsa
+id_ed25519
+*.rsp
+!*.rsp.example
+/wallets/
+/secrets/
+
+# Dados, backups e evidencias reais
+/backups/
+/dumps/
+/coletas/
+/logs/
+*.dmp
+*.bkp
+*.backup
+*.bak
+*.dbf
+*.arc
+*.log
+control*.ctl
+
+# Midias e discos de laboratorio; nao sao distribuicao do software Oracle
+*.zip
+*.iso
+*.jar
+*.war
+*.rpm
+*.ova
+*.ovf
+*.vdi
+*.vmdk
+*.qcow2
+
+# Arquivos locais/temporarios; exemplos .sql, .ctl de SQL*Loader e .sh continuam permitidos
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+*.swp
+*.swo
+*.tmp
+.DS_Store
+Thumbs.db
