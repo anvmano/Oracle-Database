@@ -34,11 +34,52 @@ BEGIN
     RAISE_APPLICATION_ERROR(-20100,'PDB/usuario fora do escopo.');
   END IF;
   SELECT COUNT(*) INTO l_count FROM user_objects
-    WHERE object_name IN ('T_BIB_TEST','PK_BIB_TEST','S_BIB_TEST','P_BIB_TEST','J_BIB_TEST');
+    WHERE object_name IN ('T_BIB_TEST','PK_BIB_TEST','T_BIB_IOT','PK_BIB_IOT','CK_BIB_IOT','FK_BIB_IOT','S_BIB_TEST','P_BIB_TEST','J_BIB_TEST');
   IF l_count<>0 THEN RAISE_APPLICATION_ERROR(-20101,'Nomes de teste ocupados; preservar objetos.'); END IF;
+  SELECT COUNT(*) INTO l_count FROM user_constraints
+    WHERE constraint_name IN ('PK_BIB_TEST','PK_BIB_IOT','CK_BIB_IOT','FK_BIB_IOT');
+  IF l_count<>0 THEN RAISE_APPLICATION_ERROR(-20101,'Nomes de constraints de teste ocupados; preservar objetos.'); END IF;
 END;
 /
-CREATE TABLE T_BIB_TEST (n NUMBER CONSTRAINT PK_BIB_TEST PRIMARY KEY);
+CREATE TABLE T_BIB_TEST (n NUMBER);
+BEGIN
+  :p_nome:='T_BIB_TEST';
+END;
+/
+@@../../scripts/geradores/extrair_constraints_tabela.sql
+BEGIN
+  IF :ddl_constraints IS NOT NULL OR :ddl_fks IS NOT NULL THEN RAISE_APPLICATION_ERROR(-20107,'Tabela sem constraints deve retornar NULL.'); END IF;
+END;
+/
+ALTER TABLE T_BIB_TEST MODIFY n NOT NULL;
+@@../../scripts/geradores/extrair_constraints_tabela.sql
+BEGIN
+  IF :ddl_constraints IS NOT NULL OR :ddl_fks IS NOT NULL THEN RAISE_APPLICATION_ERROR(-20107,'NOT NULL pertence ao DDL da tabela.'); END IF;
+END;
+/
+ALTER TABLE T_BIB_TEST ADD CONSTRAINT PK_BIB_TEST PRIMARY KEY (n);
+CREATE TABLE T_BIB_IOT (n NUMBER CONSTRAINT PK_BIB_IOT PRIMARY KEY) ORGANIZATION INDEX;
+BEGIN
+  :p_nome:='T_BIB_IOT';
+END;
+/
+@@../../scripts/geradores/extrair_constraints_tabela.sql
+BEGIN
+  IF :ddl_constraints IS NOT NULL OR :ddl_fks IS NOT NULL THEN RAISE_APPLICATION_ERROR(-20107,'PK de IOT pertence ao DDL da tabela.'); END IF;
+END;
+/
+ALTER TABLE T_BIB_IOT ADD CONSTRAINT FK_BIB_IOT FOREIGN KEY (n) REFERENCES T_BIB_TEST(n);
+@@../../scripts/geradores/extrair_constraints_tabela.sql
+BEGIN
+  IF :ddl_constraints IS NOT NULL OR :ddl_fks IS NULL THEN RAISE_APPLICATION_ERROR(-20107,'FK deve ter DDL separado, mesmo em IOT.'); END IF;
+END;
+/
+ALTER TABLE T_BIB_IOT ADD CONSTRAINT CK_BIB_IOT CHECK (n>0);
+@@../../scripts/geradores/extrair_constraints_tabela.sql
+BEGIN
+  IF :ddl_constraints IS NULL OR :ddl_fks IS NULL THEN RAISE_APPLICATION_ERROR(-20107,'CHECK e FK devem ter DDL separado.'); END IF;
+END;
+/
 INSERT INTO T_BIB_TEST SELECT LEVEL FROM dual CONNECT BY LEVEL<=10;
 COMMIT;
 BEGIN

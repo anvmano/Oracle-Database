@@ -20,6 +20,7 @@ id_ed25519
 /backups/
 /dumps/
 /coletas/
+relatorio_so_*.txt
 /logs/
 *.dmp
 *.bkp

@@ -5,6 +5,8 @@
 **Data:** 20/10/2026  
 **Tipo:** revisão documental e verificações locais; sem execução em uma instância Oracle.
 
+As seções datadas abaixo registram etapas históricas, inclusive preservação de arquivos e preparo anterior à publicação. A atualização de 23/10/2026 ao final registra o estado posterior e as correções dessa etapa.
+
 ## Cobertura e preservação
 
 - Os 38 textos originais (37 tutoriais e README) foram lidos integralmente e reescritos em UTF-8/Markdown. Cada assunto mantém seu arquivo reconhecível.
@@ -158,7 +160,7 @@ A checagem automatizada encontrou 121 endereços externos distintos, dos quais 1
 
 ### Preparação para Git
 
-Foram criados .gitignore, regras de contribuição e licença; nenhuma mídia, dump, segredo ou evidência real foi adicionada. Esta pasta continua sem inicialização Git, commit, remoto ou push. Antes de publicar, revise o conteúdo preparado e os direitos dos materiais de terceiros; .gitignore não remove itens já rastreados.
+Foram criados .gitignore, regras de contribuição e licença; nenhuma mídia, dump, segredo ou evidência real foi adicionada nessa etapa. Naquele momento, a pasta ainda não tinha inicialização Git, commit, remoto ou push; o projeto foi publicado posteriormente. O .gitignore não remove itens já rastreados nem material de commits antigos.
 
 
 ## Incorporação de assuntos operacionais — 20/10/2026
@@ -244,3 +246,17 @@ O guia foi integrado ao índice principal, ao catálogo, à biblioteca e ao chec
 Os 20 casos passaram a ter arquivos próprios em `solucao-de-problemas/`. O [guia original](SOLUCAO_DE_PROBLEMAS.md) foi mantido como índice e preparação comum, com seus links numerados anteriores preservados. Cada arquivo contém os passos e critérios de retomada do caso, fontes oficiais e navegação entre problemas.
 
 Foram ajustados links relativos para scripts/tutoriais e acrescentadas referências diretas aos roteiros nos tutoriais relacionados. Índice principal, catálogo, biblioteca e checklist apontam para a nova organização. Nenhum conteúdo SQL foi alterado ou executado nesta separação.
+
+## Correções após análise técnica e de exposição · 23/10/2026
+
+- Estatísticas: exportação/coleta/importação limitadas a estatísticas publicadas, sem pendências preexistentes. A coleta recusa preferências que possam sobrepor parâmetros explícitos. Não altera preferências nem publica/apaga pendências automaticamente.
+- Constraints: ausência de dependências exportáveis retorna NULL somente para ORA-31608 na chamada de CONSTRAINT; outros erros continuam sendo propagados. NOT NULL e PK de IOT são obtidos pelo DDL da tabela.
+- Métricas de SQL: documentado que a média do tempo acumulado por execução não corresponde à latência da aplicação, inclusive em paralelo e fetch incompleto.
+- Relatório de SO: argumentos de processos substituídos pelo nome do comando; salvamento em diretório privado, com arquivo exclusivo e acesso restrito. Padrão de relatório incluído no .gitignore.
+- Imagem com marca d'água retirada da árvore atual por ausência de comprovação de licença de redistribuição no projeto. Preservada uma cópia privada fora do repositório; os registros anteriores de preservação descrevem etapas históricas.
+- README e guia Git atualizados para o repositório publicado, com clone, navegação e contribuição. Retirado o caminho pessoal; números da triagem privada deixaram de ser apresentados como métricas públicas reproduzíveis.
+- Verificador local corrigido para não confundir a coluna START_TIME com o comando START. Adicionados casos ao roteiro Oracle opcional para ausência de constraints, NOT NULL, IOT, CHECK e FK, além das recusas de preferências/pendências; esse roteiro não foi executado.
+
+Checagens locais executadas nesta correção: 116 Markdown e 1.281 links internos, sintaxe de 113 blocos Bash, 16 regressões de consultas em SQLite e dez cenários simulados de RMAN. O relatório de SO foi exercitado com coletores simulados, inclusive recusa de argumentos de processos e propagação de falha. Essas checagens não compilam PL/SQL, não medem desempenho Oracle e não comprovam permissões em um host Linux real.
+
+O histórico público anterior contém material que exige tratamento separado da árvore atual. Foi preservado um backup privado e preparada uma cópia isolada para retirada dos arquivos legados apontados na análise e da imagem. Essa preparação não substitui o histórico remoto nem revoga credenciais. Caso alguma senha histórica tenha sido usada de fato, seu responsável deve trocá-la ou revogá-la; não foi feita tentativa de autenticação.

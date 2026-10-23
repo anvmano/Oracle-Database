@@ -12,6 +12,8 @@ Todas as consultas são de leitura de metadados/contadores; isso ainda pode cons
 
 As consultas de sessões são fotografias de estruturas dinâmicas e podem mudar durante a leitura. `sql_por_id.sql` apresenta texto e contadores por cursor filho, com seu plan hash; para linhas do plano siga o tutorial DBMS_XPLAN, escolhendo explicitamente instância/filho. Não há acesso automático a histórico licenciado.
 
+Em `sql_por_id.sql`, `elapsed_s` representa o tempo de banco acumulado do cursor, em segundos; `s_por_execucao` divide esse acumulado por `executions`. Em execução paralela, o acumulado inclui coordenador e workers. Execuções/fetches incompletos também afetam essa média. Ela não mede a latência observada pela aplicação nem um SLA; correlacione amostras do mesmo cursor, plano e duração da requisição.
+
 FRA, redo/archives, RMAN, Data Guard e corrupções registradas devem ser consultados em CDB$ROOT/non-CDB. `asm_capacidade.sql` exige conexão própria à instância ASM e não integra a sessão de manutenção do banco.
 
 ## Catálogo

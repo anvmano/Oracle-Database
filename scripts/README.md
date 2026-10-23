@@ -13,7 +13,7 @@ Biblioteca organizada por tarefa, com implementação em `.sql` e instruções e
 
 ## Encontrar a informação
 
-Comece pelo **[catálogo por assunto](CATALOGO.md)**: 90 tarefas em 17 assuntos, com links para o SQL correspondente. Não é necessário baixar ou publicar um arquivo por vez: o repositório inteiro é distribuído junto, mantendo os scripts independentes. Consulte o [passo a passo de publicação](PUBLICACAO.md).
+Comece pelo **[catálogo por assunto](CATALOGO.md)**: 90 tarefas em 17 assuntos, com links para o SQL correspondente. Não é necessário baixar ou publicar um arquivo por vez: o repositório inteiro é distribuído junto, mantendo os scripts independentes. Consulte o [guia para obter e atualizar o projeto](PUBLICACAO.md).
 
 **Estado do conteúdo:** o mantenedor informou que os scripts já foram tratados. Uma nova validação não é requisito desta organização ou da publicação. Este registro não atribui nova execução Oracle a esta etapa.
 
@@ -52,7 +52,7 @@ O exemplo usa um schema fictício. Na manutenção, use usuário local não mant
 
 As ferramentas locais existentes em [tests/](../tests/validar_acervo.py) são apoio para quem futuramente alterar o acervo. O [roteiro Oracle](../tests/oracle/README.md) permanece como referência opcional; não é pendência nem condição para publicar este conjunto.
 
-Para contribuir, atualize o SQL canônico, sua entrada no catálogo e o tutorial relacionado. Não execute toda a pasta em lote: os arquivos têm ambientes e efeitos diferentes. O [guia de publicação](PUBLICACAO.md) explica como enviar todos os arquivos em um commit.
+Para contribuir, atualize o SQL canônico, sua entrada no catálogo e o tutorial relacionado. Não execute toda a pasta em lote: os arquivos têm ambientes e efeitos diferentes. O [guia de atualização](PUBLICACAO.md) explica como obter o conjunto e enviar mudanças relacionadas em um commit.
 
 Os originais privados foram preservados. Duplicatas, misturas de assuntos e material excluído são descritos no [registro público da curadoria](CURADORIA.md), sem nomes/caminhos de clientes. A relação detalhada dos arquivos de origem continua fora deste projeto.
 

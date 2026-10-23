@@ -28,10 +28,10 @@ df -hP
 printf '\nMemoria e swap (MiB)\n'
 free -m
 printf '\nProcessos por CPU (amostra de ps)\n'
-ps -eo pid,user,pcpu,pmem,args --sort=-pcpu | awk 'NR <= 11'
+ps -eo pid,user,pcpu,pmem,comm --sort=-pcpu | awk 'NR <= 11'
 ```
 
-A saída de `free` mantém RAM e swap separadas. `df` mantém uma linha por filesystem, sem achatar a tabela e ler colunas de outro volume. A amostra `ps` ordena por uso de CPU informado pela ferramenta; não mede um intervalo novo como `top` interativo. Um relatório de processos pode conter argumentos sensíveis: revise antes de compartilhar.
+A saída de `free` mantém RAM e swap separadas. `df` mantém uma linha por filesystem, sem achatar a tabela e ler colunas de outro volume. A amostra `ps` ordena por uso de CPU informado pela ferramenta; não mede um intervalo novo como `top` interativo. `comm` mostra o nome do comando sem seus argumentos. Usuários, sessões e caminhos ainda podem revelar informações do ambiente: revise antes de compartilhar.
 
 ## 2. Conferir sintaxe e executar
 
@@ -45,8 +45,17 @@ Confira que há cabeçalhos, espaço por filesystem, RAM/swap separadas e linhas
 ## 3. Salvar resultado e verificar falha
 
 ```bash
-bash monitorar_so.sh > "relatorio_so_$(date +%Y%m%d_%H%M%S).txt"
+(
+  set -e
+  umask 077
+  mkdir -p coletas
+  chmod 700 coletas
+  relatorio=$(mktemp coletas/relatorio_so_XXXXXXXX.txt)
+  bash monitorar_so.sh > "$relatorio"
+)
 ```
+
+Execute na raiz da sua cópia do projeto ou em um diretório privado de trabalho. O diretório `coletas` fica acessível somente ao dono, e `mktemp` cria um arquivo novo com acesso restrito, sem sobrescrever relatórios anteriores. `/coletas/` e o padrão `relatorio_so_*.txt` são ignorados pelo Git do projeto; isso não retira arquivos já rastreados.
 
 O código de saída deve ser zero. Comando ausente/falha de coleta interrompe o script e sinaliza falha, em vez de imprimir valores deslocados como se fossem válidos. O arquivo pode ficar parcial; não o trate como coleta completa quando houver erro. Para últimas conexões, consulte `last -n 3` separadamente, quando essa ferramenta e o histórico estiverem disponíveis.
 

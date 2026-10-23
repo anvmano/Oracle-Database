@@ -53,9 +53,11 @@ def verificar_expansao(root, bash=None):
             subprocess.run([git, 'init', '--quiet', str(folder)], check=True, capture_output=True)
             ignored = {'.env', '.env.local', '.oci/config', 'chaves/segredo.pem', 'wallets/ewallet.p12',
                        'copia.bkp', 'base.dmp', 'logs/rman.log', 'control01.ctl', 'midia.zip', 'autoupgrade.jar',
-                       'db_install.rsp', 'tests/__pycache__/verificador.pyc'}
+                       'db_install.rsp', 'tests/__pycache__/verificador.pyc',
+                       'relatorio_so_12345678.txt', 'coletas/relatorio_so_12345678.txt'}
             allowed = {'README.md', 'LICENSE', '.env.example', 'exemplos/artigos.ctl',
-                       'exemplos/criar.sql', 'scripts/backup.sh', 'db_install.rsp.example', 'tests/validar_acervo.py'}
+                       'exemplos/criar.sql', 'scripts/backup.sh', 'db_install.rsp.example', 'tests/validar_acervo.py',
+                       'exemplos/anotacoes.txt'}
             result = subprocess.run([git,'-C',str(folder),'check-ignore','--no-index','--stdin','-z'],
                                     input=('\0'.join(sorted(ignored|allowed))+'\0').encode(),capture_output=True)
             check(result.returncode in {0,1}, f'git check-ignore falhou: {result.stderr}')

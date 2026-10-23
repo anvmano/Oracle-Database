@@ -6,8 +6,8 @@
 -- Efeito: Produz texto DDL; nao executa o texto gerado.
 -- Tutorial: ../../visualizar DDL.md
 -- Referencia: https://docs.oracle.com/en/database/oracle/oracle-database/19/arpls/DBMS_METADATA.html
--- Revisao: 20/10/2026; organizacao editorial do acervo previamente tratado.
--- Limite: Inclui FKs de saida, nao FKs de outras tabelas que apontam para ela; nao e migracao completa.
+-- Revisao: 23/10/2026; organizacao editorial do acervo previamente tratado.
+-- Limite: NOT NULL e PK de IOT pertencem ao DDL da tabela. Inclui so FKs de saida; nao e migracao completa.
 SET DEFINE OFF
 WHENEVER OSERROR EXIT FAILURE ROLLBACK
 WHENEVER SQLERROR EXIT FAILURE ROLLBACK
@@ -18,6 +18,8 @@ VARIABLE ddl_constraints CLOB
 VARIABLE ddl_fks CLOB
 DECLARE
   l_count NUMBER;
+  e_sem_dependencias EXCEPTION;
+  PRAGMA EXCEPTION_INIT(e_sem_dependencias,-31608);
 BEGIN
   :ddl_constraints:=NULL; :ddl_fks:=NULL;
 
@@ -33,8 +35,12 @@ BEGIN
 
   SELECT COUNT(*) INTO l_count FROM user_tables WHERE table_name=:p_nome;
   IF l_count<>1 THEN RAISE_APPLICATION_ERROR(-20032,'Tabela nao encontrada.'); END IF;
-  SELECT COUNT(*) INTO l_count FROM user_constraints WHERE table_name=:p_nome AND constraint_type IN ('P','U','C');
-  IF l_count>0 THEN :ddl_constraints:=DBMS_METADATA.GET_DEPENDENT_DDL('CONSTRAINT',:p_nome,:p_owner); END IF;
+  -- USER_CONSTRAINTS inclui tipos que a API so emite dentro do DDL da tabela.
+  BEGIN
+    :ddl_constraints:=DBMS_METADATA.GET_DEPENDENT_DDL('CONSTRAINT',:p_nome,:p_owner);
+  EXCEPTION
+    WHEN e_sem_dependencias THEN :ddl_constraints:=NULL;
+  END;
   SELECT COUNT(*) INTO l_count FROM user_constraints WHERE table_name=:p_nome AND constraint_type='R';
   IF l_count>0 THEN :ddl_fks:=DBMS_METADATA.GET_DEPENDENT_DDL('REF_CONSTRAINT',:p_nome,:p_owner); END IF;
 END;

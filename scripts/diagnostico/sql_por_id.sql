@@ -6,8 +6,10 @@
 -- Efeito: Consulta; nao altera objetos ou recursos.
 -- Tutorial: ../../Diagnosticar SQL lento com DBMS_XPLAN.md
 -- Referencia: https://docs.oracle.com/en/database/oracle/oracle-database/19/refrn/index.html
--- Revisao: 20/10/2026; organizacao editorial do acervo previamente tratado.
+-- Revisao: 23/10/2026; organizacao editorial do acervo previamente tratado.
 -- Limite: Contadores acumulados enquanto cursor esta no cache; ausencia nao comprova SQL inexistente.
+-- elapsed_s e s_por_execucao sao tempo de banco acumulado/media, nao latencia da aplicacao.
+-- Execucao paralela soma coordenador e workers; fetch incompleto tambem afeta a media.
 SET DEFINE OFF
 WHENEVER OSERROR EXIT FAILURE ROLLBACK
 WHENEVER SQLERROR EXIT FAILURE ROLLBACK

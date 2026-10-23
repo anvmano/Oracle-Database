@@ -2,9 +2,9 @@
 
 **Organização editorial:** 20/10/2026 · conteúdo previamente tratado, conforme informado pelo mantenedor.
 
-A triagem privada catalogou 2.832 arquivos, incluindo 1.378 `.sql`. Foram encontrados 33 grupos de conteúdo idêntico (36 cópias excedentes) e 149 nomes de arquivo repetidos com conteúdos diferentes. Igualdade de nome ou semelhança textual não foi tratada como equivalência funcional.
+A triagem do acervo privado identificou duplicatas, cadernos com assuntos misturados e arquivos de mesmo nome com conteúdos diferentes. Esses registros de origem permanecem privados; não constituem métricas reproduzíveis pelo repositório público. Igualdade de nome ou semelhança textual não foi tratada como equivalência funcional.
 
-O resultado público é uma biblioteca de **90 tarefas**, distribuídas pelos três grupos, e um inicializador. A curadoria cobre os assuntos administrativos selecionados, sem declarar que cada um dos 2.832 arquivos foi integralmente auditado, corrigido ou publicado. Arquivos de acesso foram excluídos da leitura de conteúdo; binários, documentos, bibliotecas e código de aplicação não foram transformados automaticamente em SQL público.
+O resultado público é uma biblioteca de **90 tarefas**, distribuídas pelos três grupos, e um inicializador. A curadoria cobre os assuntos administrativos selecionados, sem declarar que cada arquivo do acervo privado foi integralmente auditado, corrigido ou publicado. Arquivos de acesso foram excluídos da leitura de conteúdo; binários, documentos, bibliotecas e código de aplicação não foram transformados automaticamente em SQL público.
 
 ## Decisões aplicadas
 

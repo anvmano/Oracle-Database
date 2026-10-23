@@ -51,6 +51,8 @@ SELECT DBMS_METADATA.GET_DEPENDENT_DDL('INDEX','CLIENTES','APP_OWNER') FROM dual
 
 Essas chamadas podem informar objeto/dependência inexistente quando a tabela não possui aquele tipo. Não ignore toda exceção como se fosse ausência legítima; confira nome, container e privilégio. FKs de outras tabelas que **referenciam** CLIENTES não são necessariamente o mesmo conjunto de FKs definidas **em** CLIENTES.
 
+`CONSTRAINT` não inclui `NOT NULL` nem a primary key de uma IOT: esses itens pertencem ao DDL da tabela. Por isso, contar linhas de `USER_CONSTRAINTS` não garante que exista DDL separado desse tipo. O gerador da biblioteca retorna `ddl_constraints=NULL` quando a chamada não encontra dependências exportáveis (ORA-31608), após conferir a tabela e o próprio schema; outros erros são propagados.
+
 ## 4. Exportar DDL das tabelas do schema conectado
 
 ```sql

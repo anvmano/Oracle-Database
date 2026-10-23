@@ -23,6 +23,9 @@ def selects(path):
 
 def verificar_biblioteca(root):
     base = root / 'scripts'
+    client_command = re.compile(r'^\s*(?:(?:CONNECT|CONN|HOST|SPOOL|EXIT|QUIT|START)\b|@)', re.I | re.M)
+    require(not client_command.search('       start_time,completion_time'), 'Coluna START_TIME não é comando START')
+    require(client_command.search('START arquivo.sql') and client_command.search('@arquivo.sql'), 'Comandos de cliente devem ser reconhecidos')
     counts = {'diagnostico': 77, 'manutencao': 7, 'geradores': 6}
     subjects = (base/'CATALOGO.md').read_text(encoding='utf-8')
     all_files = []
@@ -43,7 +46,7 @@ def verificar_biblioteca(root):
             require('SET DEFINE OFF' in code and '&' not in code, f'{path.name}: substituição textual proibida')
             for policy in ('WHENEVER OSERROR EXIT FAILURE ROLLBACK', 'WHENEVER SQLERROR EXIT FAILURE ROLLBACK'):
                 require(policy in code, f'{path.name}: falha não propagada')
-            require(not re.search(r'^\s*(CONNECT|CONN|HOST|SPOOL|EXIT|QUIT|START|@)', code, re.I | re.M), f'{path.name}: operação de cliente inesperada')
+            require(not client_command.search(code), f'{path.name}: operação de cliente inesperada')
             require(not re.search(r'(?i)identified\s+by|password\s*=|D:\\Google|DBA_HIST_|V\$ACTIVE_SESSION_HISTORY|DBMS_SQLTUNE', code), f'{path.name}: conteúdo fora do escopo')
             require('\ufffd' not in code and '\x00' not in code and not code.startswith('\ufeff'), f'{path.name}: encoding')
             if group == 'diagnostico':

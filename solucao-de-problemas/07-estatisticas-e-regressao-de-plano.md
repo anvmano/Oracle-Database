@@ -22,7 +22,7 @@ regressão após carga/coleta ou estimativas muito diferentes das linhas observa
 1. Identifique SQL/objeto e correlacione mudança de plano, carga e horário de atualização das estatísticas.
 2. Consulte pendências/histórico com `p_owner`, `p_nome` igual à tabela e período pertinente. Confira bloqueios de estatísticas e funcionamento da coleta automática.
 3. Se as estatísticas forem a causa, preserve o estado anterior e defina o escopo. A rotina de coleta da biblioteca exporta antes de coletar, exige repositório existente e statid novo.
-4. O uso dessas intervenções exige conexão do dono local e tabela dentro do escopo do cabeçalho; primeira coleta sem estatísticas anteriores e tabelas particionadas seguem o tratamento específico do tutorial.
+4. O uso dessas intervenções exige conexão do dono local e tabela dentro do escopo do cabeçalho. Confira `PUBLISH=TRUE`, ausência de estatísticas pendentes e, para coleta, `PREFERENCE_OVERRIDES_PARAMETER=FALSE`. Casos incompatíveis, primeira coleta sem estatísticas anteriores e tabelas particionadas seguem tratamento específico; não altere preferências ou pendências automaticamente.
 5. Compare o SQL afetado. Se piorar, use a importação do backup correto conforme o procedimento, considerando a reutilização/invalidação dos cursores.
 
 ## Confirmar a retomada

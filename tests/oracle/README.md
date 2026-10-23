@@ -10,7 +10,7 @@ Para quem optar por usar este roteiro no futuro, ele utiliza uma instância **Or
 2. Um administrador deve revisar e fornecer quota e privilégios necessários. O fluxo cria tabela, procedure, job e repositório próprios; precisa de CREATE SESSION/TABLE/PROCEDURE/JOB, EXECUTE nas APIs usadas e leitura de `V_$DATABASE`/`V_$PDBS`. Não conceda DBA para contornar um erro. Não execute como SYS.
 3. Abra SQL*Plus 19c dedicado, a partir da raiz do projeto, e execute `@scripts/iniciar_sessao.sql`. Consulte `@scripts/diagnostico/identidade_banco.sql`, se houver os acessos adicionais do cabeçalho, ou confira a identidade com o administrador.
 4. Preencha `p_dbid_esperado` e `p_container_esperado` com os valores conferidos. Para o fluxo, preencha `p_confirmacao='HOMOLOGAR_BIBLIOTECA'`. O fluxo não obtém automaticamente esses valores esperados.
-5. Confira que os nomes reservados `T_BIB_TEST`, `PK_BIB_TEST`, `S_BIB_TEST`, `P_BIB_TEST` e `J_BIB_TEST` estão livres no schema. O teste recusa colisões e não remove objetos preexistentes.
+5. Confira que os nomes reservados `T_BIB_TEST`, `PK_BIB_TEST`, `T_BIB_IOT`, `PK_BIB_IOT`, `CK_BIB_IOT`, `FK_BIB_IOT`, `S_BIB_TEST`, `P_BIB_TEST` e `J_BIB_TEST` estão livres no schema. O teste recusa colisões e não remove objetos preexistentes. O fluxo exige `PUBLISH=TRUE`, `PREFERENCE_OVERRIDES_PARAMETER=FALSE` e ausência de estatísticas pendentes nas operações de estatísticas; ele não muda essas preferências.
 
 ## Fluxo nominal com alterações
 
@@ -18,6 +18,7 @@ Execute [validar_fluxo.sql](validar_fluxo.sql) com `@tests/oracle/validar_fluxo.
 
 - criação de repositório pela API, exportação e coleta com preservação anterior;
 - estatísticas de 10 linhas antes, 20 após coleta e retorno para 10 após importação;
+- constraints: tabela sem constraints, somente NOT NULL, PK de IOT, FK de saída, CHECK e PK de tabela heap; ausência exportável retorna NULL;
 - recompilação de uma procedure própria e verificação do estado;
 - cinco geradores, incluindo DDL de tabela, índice, constraints, grants e recompilação;
 - habilitação e desabilitação de um job local com início futuro e confirmação de estado.
@@ -39,6 +40,9 @@ Os scripts encerram SQL*Plus em erro. Por isso cada caso deve começar com uma c
 | Statid repetido | Exportação/coleta com statid usado | ORA-20010; preserva a exportação anterior. |
 | Tabela sem stats, particionada, externa ou bloqueada | Exportação/coleta | Recusa de escopo ou ORA-20008/20011; sem desbloqueio automático. |
 | Importação sem backup | Statid inexistente | ORA-20012; sem importação. |
+| Estatísticas não publicadas | Preferência efetiva PUBLISH=FALSE no alvo | ORA-20021 em exportação/coleta/importação, antes da API de alteração; nenhuma preferência modificada. |
+| Estatísticas pendentes preexistentes | Alvo com linhas em USER_TAB_PENDING_STATS e PUBLISH=TRUE | ORA-20022; pendências preservadas, sem exportação/coleta/importação. |
+| Preferências sobrepõem parâmetros | PUBLISH=TRUE, sem pendências, PREFERENCE_OVERRIDES_PARAMETER=TRUE | ORA-20023 na coleta antes da exportação; não altera preferências nem coleta com degree inesperado. |
 | Backup de outro objeto | Statid existente de tabela diferente | API deve recusar/sem conjunto compatível; conferir stats do alvo. |
 | Compilação com erro | Procedure própria que fique INVALID | Falha nativa/ORA-20015; não anunciar sucesso; consultar USER_ERRORS. |
 | Sessão divergente ou própria | KILL com SID/SERIAL incorretos ou própria sessão | ORA-20016/20017; nenhuma sessão encerrada. |

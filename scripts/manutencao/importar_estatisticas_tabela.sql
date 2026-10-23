@@ -1,12 +1,12 @@
 -- Objetivo: Restaurar estatisticas exportadas da mesma tabela
 -- Ambiente: Oracle 19c; SQL*Plus 19c; executar iniciar_sessao.sql antes.
 -- Escopo: container conectado; GV$ inclui instancias, V$ somente a local.
--- Privilegios: leitura de V$DATABASE, V$PDBS, USER_USERS, USER_TABLES, USER_EXTERNAL_TABLES, USER_TAB_STATISTICS; EXECUTE DBMS_STATS/DBMS_ASSERT; repositorio proprio; API/DDL indicado no corpo.
+-- Privilegios: leitura de V$DATABASE, V$PDBS, USER_USERS, USER_TABLES, USER_EXTERNAL_TABLES, USER_TAB_STATISTICS, USER_TAB_PENDING_STATS; EXECUTE DBMS_STATS/DBMS_ASSERT; repositorio proprio; API/DDL indicado no corpo.
 -- Parametros bind: p_owner; p_dbid_esperado; p_container_esperado; p_confirmacao=IMPORTAR_STATS; p_nome; p_stat_table; p_statid previamente conferido
 -- Efeito: ALTERA o alvo; leia pre-condicoes e retorno no indice.
 -- Tutorial: ../../Gerenciar estatisticas com DBMS_STATS.md
 -- Referencia: https://docs.oracle.com/en/database/oracle/oracle-database/19/arpls/DBMS_STATS.html
--- Revisao: 20/10/2026; organizacao editorial do acervo previamente tratado.
+-- Revisao: 23/10/2026; organizacao editorial do acervo previamente tratado.
 -- Limite: Confira a origem do statid; existencia de linhas nao prova que o backup e da tabela. A API pode falhar ou alterar planos.
 SET DEFINE OFF
 WHENEVER OSERROR EXIT FAILURE ROLLBACK
@@ -66,6 +66,12 @@ BEGIN
   SELECT stattype_locked INTO l_locked FROM user_tab_statistics
     WHERE table_name=:p_nome AND object_type='TABLE';
   IF l_locked IS NOT NULL THEN RAISE_APPLICATION_ERROR(-20008,'Estatisticas bloqueadas; nao desbloquear automaticamente.'); END IF;
+
+  IF NVL(UPPER(DBMS_STATS.GET_PREFS('PUBLISH',:p_owner,:p_nome)),'?')<>'TRUE' THEN
+    RAISE_APPLICATION_ERROR(-20021,'Fluxo limitado a estatisticas publicadas; PUBLISH deve ser TRUE.');
+  END IF;
+  SELECT COUNT(*) INTO l_count FROM user_tab_pending_stats WHERE table_name=:p_nome;
+  IF l_count<>0 THEN RAISE_APPLICATION_ERROR(-20022,'Ha estatisticas pendentes; preservar e tratar em fluxo separado.'); END IF;
 
   EXECUTE IMMEDIATE 'SELECT COUNT(*) FROM '||DBMS_ASSERT.ENQUOTE_NAME(:p_stat_table,FALSE)||' WHERE statid=:id'
     INTO l_count USING :p_statid;

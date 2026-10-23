@@ -5,6 +5,10 @@
 
 Guias de estudo e operação assistida para **Oracle Database, Linux e OCI**. O acervo reúne 37 tutoriais históricos revisados e 45 novos guias, todos em Markdown, com comandos por ambiente, verificações e fontes oficiais. Há também modelo de tutorial, cenário de laboratório e regras de contribuição.
 
+- [Encontrar um script por assunto](scripts/CATALOGO.md).
+- [Resolver um dos 20 problemas](SOLUCAO_DE_PROBLEMAS.md).
+- [Obter o projeto e contribuir](scripts/PUBLICACAO.md).
+
 ## Como usar
 
 1. Leia escopo e pré-requisitos do guia antes de copiar comandos.
@@ -27,7 +31,9 @@ Guias de estudo e operação assistida para **Oracle Database, Linux e OCI**. O 
 
 Os guias 12.1, 18c, APEX 19.2, EM 13.3 e RU/RUR 19.5 preservam o contexto histórico do acervo; não representam seleção de versões/patches atuais. RAC e mudanças de plataforma exigem procedimentos próprios. Os novos guias de Data Guard definem um cenário de 19c single instance; não devem ser aplicados automaticamente a outras topologias.
 
-Consulte o [registro da revisão](REVISAO.md) para cobertura, alterações e limites. O ZIP não integra o acervo revisado. A imagem original foi inspecionada e preservada; não é necessária para executar os roteiros.
+Consulte o [registro da revisão](REVISAO.md) para cobertura, alterações e limites. O ZIP não integra o acervo revisado. A imagem com marca d'água foi retirada da versão atual por ausência de comprovação de licença de redistribuição no projeto.
+
+As checagens locais usam Python, SQLite e ferramentas simuladas. Seus resultados não demonstram compilação Oracle, compatibilidade com todo RU/topologia ou ganho de desempenho em produção. O tratamento anterior informado pelo mantenedor é distinto das execuções registradas nesta revisão; isso não cria uma nova condição para publicação.
 
 ## Resolver um problema
 

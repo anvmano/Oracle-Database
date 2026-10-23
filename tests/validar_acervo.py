@@ -113,13 +113,17 @@ uptime() { printf 'up 1 day\n'; }
 who() { :; }
 df() { printf 'Filesystem Size Used Avail Use%% Mounted\ntmpfs 4G 0 4G 0%% /dev/shm\n/dev/root 50G 25G 25G 50%% /\n'; }
 free() { printf '              total used free shared buff/cache available\nMem: 16000 6000 2000 100 8000 9000\nSwap: 4000 1000 3000\n'; }
-ps() { printf 'PID USER CPU MEM ARGS\n'; for ((i=1;i<=15;i++)); do printf '%s oracle 1 1 teste\n' "$i"; done; }
+ps() {
+  if [[ "$*" != '-eo pid,user,pcpu,pmem,comm --sort=-pcpu' ]]; then return 64; fi
+  printf 'PID USER CPU MEM COMMAND\n'
+  for ((i=1;i<=15;i++)); do printf '%s oracle 1 1 teste\n' "$i"; done
+}
 '''
         result = subprocess.run([shell, '-c', mocks+'\n'+monitor], text=True, capture_output=True, env=env)
         require(result.returncode == 0, f'Relatório simulado falhou: {result.stderr}')
         require('/dev/root 50G 25G 25G' in result.stdout, 'Filesystem de dados omitido')
         require('Mem: 16000 6000 2000' in result.stdout and 'Swap: 4000 1000 3000' in result.stdout, 'RAM/swap confundidas')
-        process_lines = result.stdout.split('PID USER CPU MEM ARGS\n', 1)[1].strip().splitlines()
+        process_lines = result.stdout.split('PID USER CPU MEM COMMAND\n', 1)[1].strip().splitlines()
         require(len(process_lines) == 10, 'Quantidade de processos exibidos incorreta')
         failure = subprocess.run([shell, '-c', mocks+'\nfree() { return 42; }\n'+monitor], text=True, capture_output=True, env=env)
         require(failure.returncode != 0 and 'Processos por CPU' not in failure.stdout, 'Falha de coleta mascarada')

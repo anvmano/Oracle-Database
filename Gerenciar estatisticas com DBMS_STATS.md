@@ -18,9 +18,15 @@ SELECT table_name, num_rows, blocks, last_analyzed, stale_stats, stattype_locked
 FROM user_tab_statistics WHERE table_name='T_PLANO_LAB';
 SELECT DBMS_STATS.GET_PREFS('STALE_PERCENT',USER,'T_PLANO_LAB') FROM dual;
 SELECT DBMS_STATS.GET_PREFS('METHOD_OPT',USER,'T_PLANO_LAB') FROM dual;
+SELECT DBMS_STATS.GET_PREFS('PUBLISH',USER,'T_PLANO_LAB') FROM dual;
+SELECT DBMS_STATS.GET_PREFS('PREFERENCE_OVERRIDES_PARAMETER',USER,'T_PLANO_LAB') FROM dual;
+SELECT table_name, last_analyzed FROM user_tab_pending_stats
+WHERE table_name='T_PLANO_LAB';
 ```
 
 Registre plano/tempos do SQL-alvo e volume atual. NUM_ROWS é a estimativa da última coleta, não um COUNT em tempo real. Estatísticas bloqueadas exigem entender a decisão anterior, não executar FORCE indiscriminadamente.
+
+O fluxo abaixo trata estatísticas publicadas. Prossiga somente com `PUBLISH=TRUE`, `PREFERENCE_OVERRIDES_PARAMETER=FALSE` e sem estatísticas pendentes da tabela. Caso contrário, pare e planeje o tratamento específico; não altere preferências nem publique/apague pendências para adaptar o ambiente ao exemplo. Preferências que sobrepõem parâmetros podem substituir inclusive `degree=>1`. Exportação/importação de estatísticas publicadas não preservam/restauram uma versão pendente.
 
 ## 2. Exportar as estatísticas existentes
 
